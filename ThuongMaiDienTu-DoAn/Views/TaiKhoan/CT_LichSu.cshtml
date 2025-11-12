@@ -1,0 +1,41 @@
+﻿@model ThuongMaiDienTu_DoAn.Models.HOADON
+@{
+    ViewBag.Title = "Chi tiết giao dịch";
+    var chiTiet = ViewBag.ChiTiet as List<ThuongMaiDienTu_DoAn.Models.CT_HOADON>;
+}
+
+<div class="container mt-4">
+    <h2 class="mb-3">Chi tiết đơn hàng</h2>
+
+    <p><strong>Ngày đặt:</strong> @String.Format("{0:dd/MM/yyyy}", Model.NgayDat)</p>
+    <p><strong>Ngày giao:</strong> @String.Format("{0:dd/MM/yyyy}", Model.NgayTT)</p>
+    <p><strong>Địa chỉ giao hàng:</strong> @Model.DiaChiGiaoHang</p>
+    <p><strong>Tình trạng giao hàng:</strong> @Model.TrangThai</p>
+
+    <hr />
+
+    <h4>Danh sách sản phẩm</h4>
+    <table class="table table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>Tên sản phẩm</th>
+                <th>Số lượng</th>
+                <th>Thành tiền</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in chiTiet)
+            {
+                <tr>
+                    <td>@item.SANPHAM.TenSP</td>
+                    <td>@item.SoLuong</td>
+                    <td>@String.Format("{0:N0}", item.ThanhTien)</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <a href="@Url.Action("LichSu", "TaiKhoan")" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> Quay lại
+    </a>
+</div>

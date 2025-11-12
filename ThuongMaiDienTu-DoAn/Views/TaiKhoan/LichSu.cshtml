@@ -1,0 +1,77 @@
+﻿@model IEnumerable<ThuongMaiDienTu_DoAn.Models.LichSuViewModel>
+
+
+@{
+    ViewBag.Title = "Lịch sử mua hàng";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-3"><i class="bi bi-clock-history"></i> Lịch sử mua hàng</h2>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            Bạn chưa có đơn hàng nào.
+        </div>
+    }
+    else
+    {
+        <table class="table table-bordered table-hover">
+            <thead class="table-dark">
+                <tr>
+
+                    <th>Ngày đặt</th>
+                    <th>Ngày thanh toán</th>
+                    <th>Tình trạng giao hàng</th>
+                    <th>Phương thức thanh toán</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+
+                        <td>@String.Format("{0:dd/MM/yyyy}", item.NgayDat)</td>
+                        <td>@String.Format("{0:dd/MM/yyyy}", item.NgayTT)</td>
+                        <td>@item.TrangThai</td>
+                        <td>@item.PhuongThucTT</td>
+                        <td>
+                            <a href="@Url.Action("CT_LichSu", "TaiKhoan", new { id = item.MaHD })"
+                               class="btn btn-primary btn-sm">
+                                Xem chi tiết
+                            </a>
+                            @if (item.TrangThai == "Đang chờ xử lý" || item.TrangThai == "Đang xử lý")
+                            {
+                                <a href="@Url.Action("HuyDonHang", "TaiKhoan", new { id = item.MaHD })"
+                                   class="btn btn-danger btn-sm"
+                                   onclick="return confirm('Bạn có chắc muốn hủy đơn hàng này không?');">
+                                    Hủy
+                                </a>
+                            }
+                            @if (item.TrangThai == "Đang chờ xử lý")
+                            {
+                                <a href="@Url.Action("SuaDonHang", "TaiKhoan", new { id = item.MaHD })"
+                                   class="btn btn-warning btn-sm">
+                                    Sửa
+                                </a>
+                            }
+                            @if (item.TrangThai == "Đã thanh toán" && !item.DaDanhGia)
+                            {
+                                <a href="@Url.Action("DanhGia", "TaiKhoan", new { maHD = item.MaHD })"
+                                   class="btn btn-success btn-sm">
+                                    Đánh giá
+                                </a>
+                            }
+                            else if (item.TrangThai == "Đã thanh toán" && item.DaDanhGia)
+                            {
+                                <span class="text-muted">Đã đánh giá</span>
+                            }
+
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>

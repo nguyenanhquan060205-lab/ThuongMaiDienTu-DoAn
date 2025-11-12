@@ -13,6 +13,7 @@
     <title>@ViewBag.Title - TechSecond</title>
     <link rel="stylesheet" href="~/Content/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <script src="~/Scripts/bootstrap.bundle.min.js"></script>
 
     <style>
@@ -111,6 +112,10 @@
                                     </a>
                                 </li>
 
+                                <li><a class="dropdown-item" href="@Url.Action("TaoMoi","SanPham")"><i class="fa fa-plus-circle me-2"></i> Đăng bán</a></li>
+                                <li><a class="dropdown-item" href="@Url.Action("CuaToi","SanPham")"><i class="fa fa-box-open me-2"></i> Bài đăng</a></li>
+                                <li><a class="dropdown-item" href="@Url.Action("LichSu","TaiKhoan")"><i class="fa fa-history me-2"></i> Lịch sử</a></li>
+                                <li><a class="dropdown-item" href="@Url.Action("SanPhamDaBan","SanPham")"><i class="fa fa-solid fa-bell"></i> Thông báo</a></li>
                                 <li><a class="dropdown-item" href="@Url.Action("DangXuat","TaiKhoan")"><i class="fa fa-sign-out me-2"></i> Đăng xuất</a></li>
                             </ul>
                         </div>
@@ -132,7 +137,7 @@
     <!-- 🦶 FOOTER -->
     <footer>
         <div class="container">
-            <p>© 2025 - <b>TechSecond</b> | Đồ án Hệ quản trị cơ sở dữ liệu</p>
+            <p>© 2025 - <b>TechSecond</b></p>
             <p><a href="#">Chính sách</a> | <a href="#">Điều khoản</a> | <a href="#">Liên hệ</a></p>
         </div>
     </footer>

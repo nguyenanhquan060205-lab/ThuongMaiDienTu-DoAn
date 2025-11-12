@@ -1,0 +1,53 @@
+﻿@model ThuongMaiDienTu_DoAn.Models.HOADON
+
+<h2>Sửa đơn hàng</h2>
+@if (!ViewData.ModelState.IsValid)
+{
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+    @Html.ValidationSummary(false, "", new { @class = "mb-0" })
+</div>
+}
+
+@using (Html.BeginForm("SuaDonHang", "TaiKhoan", FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(m => m.MaHD)
+
+    <div class="mb-3">
+        <label>Phương thức thanh toán: </label>
+        @Html.EditorFor(m => m.PhuongThucTT, new { htmlAttributes = new { @class = "form-control", style = "width:400px;" } })
+        <label>Địa chỉ giao hàng: </label>
+        @Html.EditorFor(m => m.DiaChiGiaoHang, new { htmlAttributes = new { @class = "form-control", style = "width:400px;" } })
+    </div>
+
+    <h4>Chi tiết hóa đơn</h4>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Tên sản phẩm</th>
+                <th>Số lượng</th>
+                <th>Thành tiền</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Model.CT_HOADON.Count; i++)
+            {
+                var item = Model.CT_HOADON.ElementAt(i);
+                <tr>
+                    <td>@item.SANPHAM.TenSP</td>
+                    <td>
+                        <input type="number" name="CT_HOADON[@i].SoLuong" value="@item.SoLuong" class="form-control" />
+                        <input type="hidden" name="CT_HOADON[@i].MaSP" value="@item.MaSP" />
+
+                    </td>
+                    <td>@String.Format("{0:N0}", item.ThanhTien)</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <!-- Nút lưu thay đổi phải nằm trong form -->
+    <div class="mt-3">
+        <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+        <a href="@Url.Action("LichSu", "TaiKhoan")" class="btn btn-secondary">Quay lại</a>
+    </div>
+}

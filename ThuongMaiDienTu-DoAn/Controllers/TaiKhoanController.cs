@@ -1,10 +1,11 @@
-﻿using ThuongMaiDienTu_DoAn.Models;
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.Data.Entity;
 using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using ThuongMaiDienTu_DoAn.Models;
 
 namespace ThuongMaiDienTu_DoAn.Controllers
 {
@@ -185,5 +186,194 @@ namespace ThuongMaiDienTu_DoAn.Controllers
             Session.Clear();
             return RedirectToAction("Index", "Home");
         }
+
+        // ========== [Lịch sử] ==========
+        public ActionResult LichSu()
+        {
+            var kh = Session["user"] as NGUOIDUNG;
+            if (kh == null)
+                return RedirectToAction("DangNhap", "TaiKhoan");
+
+            var dsDonHang = db.HOADONs
+                .Where(d => d.MaKH == kh.MaKH)
+                .OrderByDescending(d => d.NgayDat)
+                .Select(d => new LichSuViewModel
+                {
+                    MaHD = d.MaHD,
+                    NgayDat = d.NgayDat,
+                    NgayTT = d.NgayTT,
+                    TrangThai = d.TrangThai,
+                    PhuongThucTT = d.PhuongThucTT,
+                    DaDanhGia = db.CT_HOADON
+                                    .Where(ct => ct.MaHD == d.MaHD)
+                                    .All(ct => db.DANHGIAs.Any(dg => dg.MaKH == kh.MaKH && dg.MaSP == ct.MaSP))
+                })
+                .ToList();
+
+            return View(dsDonHang);
+        }
+
+        public ActionResult CT_LichSu(int id)
+        {
+            var kh = Session["user"] as NGUOIDUNG;
+            var hd = db.HOADONs.FirstOrDefault(d => d.MaHD == id && d.MaKH == kh.MaKH);
+            if (hd == null)
+            {
+                return HttpNotFound();
+            }
+            var chiTiet = db.CT_HOADON
+                    .Where(ct => ct.MaHD == id)
+                    .Include(ct => ct.SANPHAM)
+                    .Include(ct => ct.HOADON)
+                    .ToList();
+            ViewBag.ChiTiet = chiTiet;
+            return View(hd);
+        }
+        [HttpGet]
+        public ActionResult HuyDonHang(int id)
+        {
+            var kh = Session["user"] as NGUOIDUNG;
+            if (kh == null)
+            {
+                TempData["ThongBao"] = "Vui lòng đăng nhập để thực hiện!";
+                return RedirectToAction("DangNhap", "TaiKhoan");
+            }
+
+            var hd = db.HOADONs.FirstOrDefault(d => d.MaHD == id && d.MaKH == kh.MaKH);
+            if (hd == null)
+            {
+                return HttpNotFound();
+            }
+
+            if (hd.TrangThai == "Đang chờ xử lý")
+            {
+                // Hoàn lại số lượng sản phẩm
+                var chiTiet = db.CT_HOADON.Where(ct => ct.MaHD == hd.MaHD).ToList();
+                foreach (var item in chiTiet)
+                {
+                    var sp = db.SANPHAMs.Find(item.MaSP);
+                    if (sp != null)
+                    {
+                        sp.SoLuong += item.SoLuong;
+                        if (sp.TrangThai == "Đã bán" && sp.SoLuong > 0)
+                            sp.TrangThai = "Đã duyệt";
+                    }
+                }
+
+                hd.TrangThai = "Đã Huỷ";
+                db.SaveChanges();
+                TempData["ThongBao"] = "Đơn hàng đã được hủy thành công!";
+            }
+
+            else
+            {
+                TempData["ThongBao"] = "Đơn hàng không thể hủy vì đã giao hoặc hoàn tất!";
+            }
+
+            return RedirectToAction("LichSu");
+        }
+        [HttpGet]
+        public ActionResult SuaDonHang(int id)
+        {
+            var kh = Session["user"] as NGUOIDUNG;
+            if (kh == null)
+            {
+                return RedirectToAction("DangNhap", "TaiKhoan");
+            }
+
+            var hd = db.HOADONs.FirstOrDefault(d => d.MaHD == id && d.MaKH == kh.MaKH);
+            if (hd == null)
+            {
+                return HttpNotFound();
+            }
+
+            return View(hd); 
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult SuaDonHang(HOADON model)
+        {
+            var kh = Session["user"] as NGUOIDUNG;
+            if (kh == null)
+                return RedirectToAction("DangNhap", "TaiKhoan");
+
+            var hd = db.HOADONs.Include("CT_HOADON")
+                       .FirstOrDefault(d => d.MaHD == model.MaHD && d.MaKH == kh.MaKH);
+            if (hd == null)
+                return HttpNotFound();
+
+            // Cập nhật số lượng từ model (nếu cần)
+            foreach (var ctModel in model.CT_HOADON)
+            {
+                var ct = hd.CT_HOADON.FirstOrDefault(c => c.MaSP == ctModel.MaSP);
+                if (ct != null)
+                {
+                    var sp = db.SANPHAMs.Find(ct.MaSP);
+                    if (sp == null)
+                    {
+                        ModelState.AddModelError("", $"Sản phẩm {ct.MaSP} không tồn tại!");
+                        return View(hd);
+                    }
+
+                    // Kiểm tra tồn kho
+                    if (ctModel.SoLuong > sp.SoLuong + ct.SoLuong)
+                    {
+                        ModelState.AddModelError("",
+                            $"Số lượng sản phẩm '{sp.TenSP}' không đủ. Tồn kho: {sp.SoLuong + ct.SoLuong}");
+                        return View(hd);
+                    }
+
+                    ct.SoLuong = ctModel.SoLuong;
+                    ct.ThanhTien = ct.SoLuong * sp.Gia;
+                }
+            }
+
+            // Cập nhật thông tin HOADON
+            hd.PhuongThucTT = model.PhuongThucTT;
+            hd.DiaChiGiaoHang = model.DiaChiGiaoHang;
+
+            db.SaveChanges();
+            TempData["ThongBao"] = "Cập nhật đơn hàng thành công!";
+            return RedirectToAction("LichSu");
+        }
+        // GET: Hiển thị form đánh giá
+        public ActionResult DanhGia(int maHD)
+        {
+            var hoaDon = db.CT_HOADON
+                           .Where(ct => ct.MaHD == maHD)
+                           .Select(ct => new DanhGiaViewModel
+                           {
+                               MaSP = ct.MaSP,
+                               TenSP = ct.SANPHAM.TenSP
+                           }).ToList();
+
+            ViewBag.MaHD = maHD;
+            return View(hoaDon);
+        }
+        // POST: Lưu đánh giá
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult DanhGia(int maHD, int maSP, int soSao, string noiDung)
+        {
+            var kh = Session["user"] as NGUOIDUNG;
+            if (kh == null)
+                return RedirectToAction("DangNhap", "TaiKhoan");
+
+            var danhGia = new DANHGIA
+            {
+                MaKH = kh.MaKH,
+                MaSP = maSP,
+                SoSao = soSao,
+                NoiDung = noiDung,
+                NgayDG = DateTime.Now
+            };
+            db.DANHGIAs.Add(danhGia);
+            db.SaveChanges();
+
+            TempData["ThongBao"] = "✅ Cảm ơn bạn đã đánh giá sản phẩm!";
+            return RedirectToAction("LichSu");
+        }
+
     }
 }

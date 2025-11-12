@@ -11,27 +11,32 @@ namespace ThuongMaiDienTu_DoAn.Controllers
         TMDTEntities db = new TMDTEntities();
 
         //Khi khách đặt hàng  
+        // GET: hiển thị form xác nhận đơn hàng
         public ActionResult DatHang()
         {
             var kh = Session["user"] as NGUOIDUNG;
             if (kh == null)
                 return RedirectToAction("DangNhap", "TaiKhoan");
 
-            var gio = db.GIOHANGs.Include("CT_GIOHANG").FirstOrDefault(g => g.MaKH == kh.MaKH);
+            var gio = db.GIOHANGs
+                        .Include("CT_GIOHANG.SANPHAM")
+                        .FirstOrDefault(g => g.MaKH == kh.MaKH);
+
             if (gio == null || !gio.CT_GIOHANG.Any())
             {
                 TempData["Error"] = "Giỏ hàng của bạn đang trống.";
                 return RedirectToAction("Index", "GioHang");
             }
 
-            // Tạo hóa đơn
+            // tạo hóa đơn
             var hd = new HOADON
             {
                 MaKH = kh.MaKH,
                 NgayDat = DateTime.Now,
                 PhuongThucTT = "Thanh toán khi nhận hàng",
                 TrangThai = "Đang chờ xử lý",
-                TongTien = 0
+                TongTien = gio.CT_GIOHANG.Sum(c => c.ThanhTien),
+                DiaChiGiaoHang = kh.DiaChi 
             };
             db.HOADONs.Add(hd);
             db.SaveChanges();
@@ -41,6 +46,10 @@ namespace ThuongMaiDienTu_DoAn.Controllers
                 var sp = db.SANPHAMs.Find(item.MaSP);
                 if (sp == null) continue;
 
+                sp.SoLuong -= item.SoLuong;
+                if (sp.SoLuong <= 0)
+                    sp.TrangThai = "Đã bán";
+
                 db.CT_HOADON.Add(new CT_HOADON
                 {
                     MaHD = hd.MaHD,
@@ -48,16 +57,16 @@ namespace ThuongMaiDienTu_DoAn.Controllers
                     SoLuong = item.SoLuong,
                     ThanhTien = item.ThanhTien
                 });
-
-                hd.TongTien += item.ThanhTien;
             }
 
             db.CT_GIOHANG.RemoveRange(gio.CT_GIOHANG);
             db.SaveChanges();
 
-            TempData["Success"] = "Đặt hàng thành công! Đơn hàng đang chờ xử lý.";
-            return RedirectToAction("ChiTiet", new { id = hd.MaHD });
+            TempData["Success"] = "Đơn hàng của bạn đang được xử lý!";
+            return RedirectToAction("Index", "GioHang"); 
         }
+
+
 
         // Khi Admin xác nhận đã giao hàng thành công (COD)
         [HttpPost]

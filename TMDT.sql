@@ -1,5 +1,5 @@
-﻿CREATE DATABASE QUANLITMDT
-USE QUANLITMDT
+﻿CREATE DATABASE TMDT
+USE TMDT
 
 -- Bảng USER (KHÁCHHÀNG + ADMIN)
 CREATE TABLE NGUOIDUNG
@@ -14,7 +14,7 @@ CREATE TABLE NGUOIDUNG
     Email NVARCHAR(100) UNIQUE,
     SDT VARCHAR(20) UNIQUE,
     DiaChi NVARCHAR(200),
-    AnhDaiDien NVARCHAR(255) DEFAULT 'LUU HINH O DAY NE.JPG',
+    AnhDaiDien NVARCHAR(255) DEFAULT 'default.jpg',
     NgayTao DATETIME DEFAULT GETDATE()
 );
 
@@ -103,6 +103,10 @@ CREATE TABLE KHIEUNAI (
     CHECK (TrangThai IN (N'Chưa xử lý', N'Đang xử lý', N'Đã giải quyết'))
 
 );
+ALTER TABLE KHIEUNAI
+ADD NgayGui DATETIME DEFAULT GETDATE(),
+    PhanHoi NVARCHAR(MAX) NULL;  -- phản hồi của admin
+
 
 -- Bảng TIN NHẮN
 CREATE TABLE TINNHAN (
@@ -135,6 +139,7 @@ BEGIN
     UPDATE GIOHANG
     SET TONGSOLUONG = (
         SELECT ISNULL(SUM(SOLUONG),0)
+
         FROM CT_GIOHANG
         WHERE CT_GIOHANG.MaGH = GIOHANG.MaGH
     )
@@ -161,3 +166,80 @@ BEGIN
     )
     WHERE MaSP IN (SELECT MaSP FROM inserted UNION SELECT MaSP FROM deleted);
 END;
+
+
+
+-- 1️⃣ Bảng NGUOIDUNG (Admin + User)
+INSERT INTO NGUOIDUNG (HoTen, GioiTinh, NgaySinh, VaiTro, MatKhau, TaiKhoan, Email, SDT, DiaChi, AnhDaiDien)
+VALUES
+(N'Nguyễn Văn Admin', N'Nam', '1990-01-10', 'Admin', '123', 'admin', 'admin@gmail.com', '0901000001', N'Quận 1, TP.HCM', 'admin.jpg'),
+(N'Lê Minh Huy', N'Nam', '2002-07-20', 'User', '123', 'minhhuy', 'minhhuy@gmail.com', '0902000002', N'Quận 5, TP.HCM', 'default.jpg'),
+(N'Phạm Thị Hoa', N'Nữ', '2001-12-03', 'User', '123', 'hoapham', 'hoapham@gmail.com', '0903000003', N'Quận 7, TP.HCM', 'default.jpg'),
+(N'Trần Quốc Bảo', N'Nam', '2001-09-14', 'User', '123', 'quocbao', 'quocbao@gmail.com', '0904000004', N'Quận 10, TP.HCM', 'default.jpg');
+GO
+
+
+-- 2️⃣ Bảng LOAISANPHAM
+INSERT INTO LOAISANPHAM (TenLoai)
+VALUES
+(N'Điện thoại'),
+(N'Máy tính & Laptop'),
+(N'Thời trang'),
+(N'Đồ gia dụng'),
+(N'Phụ kiện công nghệ');
+GO
+
+
+-- 3️⃣ Bảng SANPHAM
+INSERT INTO SANPHAM (MaKH, MaLoai, TenSP, MoTa, Gia, SoLuong, TrangThai)
+VALUES
+(2, 1, N'iPhone 13 Pro 128GB', N'Hàng chính hãng, pin 93%, màu bạc', 18000000, 1, N'Đã duyệt'),
+(2, 1, N'Samsung Galaxy S21 FE', N'Máy đẹp 99%, tặng ốp lưng và cáp sạc', 9500000, 1, N'Đã duyệt'),
+(3, 2, N'Laptop Dell XPS 13', N'Core i7, SSD 512GB, RAM 16GB, mỏng nhẹ', 23000000, 1, N'Đã duyệt'),
+(3, 3, N'Áo hoodie unisex', N'Form rộng, chất vải cotton dày, đủ size', 350000, 5, N'Đã duyệt'),
+(4, 4, N'Máy xay sinh tố Philips', N'Công suất 600W, cối thủy tinh, mới 95%', 890000, 2, N'Đã duyệt'),
+(4, 5, N'Tai nghe Bluetooth Sony WF-1000XM4', N'Hàng chính hãng, chống ồn chủ động', 4800000, 1, N'Đã duyệt');
+GO
+
+
+-- 4️⃣ Bảng HINHANHSP
+INSERT INTO HINHANHSP (MaSP, URLAnh, AnhBia)
+VALUES
+(1, N'iphone13.jpg', 1),
+(2, N's21fe.jpg', 1),
+(3, N'xps13.jpg', 1),
+(4, N'hoodie.jpg', 1),
+(5, N'philips_blender.jpg', 1),
+(6, N'sony_xm4.jpg', 1);
+GO
+SELECT MaSP, TenSP FROM SANPHAM;
+
+
+USE TMDT;
+GO
+
+-- XÓA DỮ LIỆU THEO THỨ TỰ RÀNG BUỘC
+DELETE FROM TINNHAN;
+DELETE FROM KHIEUNAI;
+DELETE FROM DANHGIA;
+DELETE FROM CT_HOADON;
+DELETE FROM HOADON;
+DELETE FROM CT_GIOHANG;
+DELETE FROM GIOHANG;
+DELETE FROM HINHANHSP;
+DELETE FROM SANPHAM;
+DELETE FROM LOAISANPHAM;
+DELETE FROM NGUOIDUNG;
+GO
+
+-- RESET IDENTITY CHO TOÀN BỘ BẢNG
+DBCC CHECKIDENT ('NGUOIDUNG', RESEED, 0);
+DBCC CHECKIDENT ('LOAISANPHAM', RESEED, 0);
+DBCC CHECKIDENT ('SANPHAM', RESEED, 0);
+DBCC CHECKIDENT ('HINHANHSP', RESEED, 0);
+DBCC CHECKIDENT ('GIOHANG', RESEED, 0);
+DBCC CHECKIDENT ('HOADON', RESEED, 0);
+DBCC CHECKIDENT ('DANHGIA', RESEED, 0);
+DBCC CHECKIDENT ('KHIEUNAI', RESEED, 0);
+DBCC CHECKIDENT ('TINNHAN', RESEED, 0);
+GO

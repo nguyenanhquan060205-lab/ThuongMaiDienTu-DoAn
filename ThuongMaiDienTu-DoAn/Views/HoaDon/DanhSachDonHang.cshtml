@@ -1,0 +1,69 @@
+﻿@model IEnumerable<ThuongMaiDienTu_DoAn.Models.HOADON>
+@{
+    ViewBag.Title = "Quản lý đơn hàng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container my-5">
+    <h2 class="fw-bold text-primary mb-4">Quản lý đơn hàng</h2>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success text-center">@TempData["Success"]</div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger text-center">@TempData["Error"]</div>
+    }
+
+    <table class="table table-bordered table-striped text-center align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th>Mã HĐ</th>
+                <th>Khách hàng</th>
+                <th>Tổng tiền</th>
+                <th>Phương thức</th>
+                <th>Trạng thái</th>
+                <th>Ngày đặt</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var hd in Model)
+            {
+                <tr>
+                    <td>@hd.MaHD</td>
+                    <td>@hd.NGUOIDUNG.HoTen</td>
+                    <td class="text-danger fw-bold">@string.Format("{0:N0} ₫", hd.TongTien)</td>
+                    <td>@hd.PhuongThucTT</td>
+                    <td>
+                        <span class="badge
+                            @(hd.TrangThai == "Đã thanh toán" ? "bg-success" :
+                              hd.TrangThai == "Đang vận chuyển" ? "bg-info" :
+                              hd.TrangThai == "Đã huỷ" ? "bg-danger" : "bg-warning")">
+                            @hd.TrangThai
+                        </span>
+                    </td>
+                    @(hd.NgayDat.HasValue ? hd.NgayDat.Value.ToString("dd/MM/yyyy HH:mm") : "")
+                    <td>
+                        <a href="@Url.Action("ChiTiet", "HoaDon", new { id = hd.MaHD })" class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-eye"></i> Xem
+                        </a>
+
+                        @if (hd.TrangThai != "Đã thanh toán")
+                        {
+                            using (Html.BeginForm("XacNhanThanhToan", "HoaDon", FormMethod.Post))
+                            {
+                                @Html.Hidden("id", hd.MaHD)
+                                <button type="submit" class="btn btn-success btn-sm">
+                                    <i class="bi bi-check2-circle"></i> Xác nhận thanh toán
+                                </button>
+                            }
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

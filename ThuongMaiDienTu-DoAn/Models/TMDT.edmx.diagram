@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="902fe050939142d78a5fb6a864daadf3" Name="Diagram1">
+        <EntityTypeShape EntityType="TMDTModel.CT_GIOHANG" Width="1.5" PointX="5.25" PointY="11.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TMDTModel.CT_HOADON" Width="1.5" PointX="5.25" PointY="14.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TMDTModel.DANHGIA" Width="1.5" PointX="3" PointY="8" IsExpanded="true" />
+        <EntityTypeShape EntityType="TMDTModel.GIOHANG" Width="1.5" PointX="3" PointY="11.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TMDTModel.HINHANHSP" Width="1.5" PointX="10.25" PointY="13.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="TMDTModel.HOADON" Width="1.5" PointX="3" PointY="14.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="TMDTModel.KHIEUNAI" Width="1.5" PointX="6" PointY="7.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="TMDTModel.LOAISANPHAM" Width="1.5" PointX="5.75" PointY="18.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="TMDTModel.NGUOIDUNG" Width="1.5" PointX="0.75" PointY="8.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="TMDTModel.SANPHAM" Width="1.5" PointX="8" PointY="11.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="TMDTModel.TINNHAN" Width="1.5" PointX="10.25" PointY="9.25" IsExpanded="true" />
+        <AssociationConnector Association="TMDTModel.FK__CT_GIOHANG__MaGH__5070F446" ManuallyRouted="false" />
+        <AssociationConnector Association="TMDTModel.FK__CT_GIOHANG__MaSP__5165187F" ManuallyRouted="false" />
+        <AssociationConnector Association="TMDTModel.FK__CT_HOADON__MaHD__5CD6CB2B" ManuallyRouted="false" />
+        <AssociationConnector Association="TMDTModel.FK__CT_HOADON__MaSP__5DCAEF64" ManuallyRouted="false" />
+        <AssociationConnector Association="TMDTModel.FK__DANHGIA__MaKH__628FA481" ManuallyRouted="false" />
+        <AssociationConnector Association="TMDTModel.FK__DANHGIA__MaSP__6383C8BA" ManuallyRouted="false" />
+        <AssociationConnector Association="TMDTModel.FK__GIOHANG__MaKH__4D94879B" ManuallyRouted="false" />
+        <AssociationConnector Association="TMDTModel.FK__HINHANHSP__Masp__49C3F6B7" ManuallyRouted="false" />
+        <AssociationConnector Association="TMDTModel.FK__HOADON__MaKH__5629CD9C" ManuallyRouted="false" />
+        <AssociationConnector Association="TMDTModel.FK__KHIEUNAI__MaKH__68487DD7" ManuallyRouted="false" />
+        <AssociationConnector Association="TMDTModel.FK__KHIEUNAI__MaSP__693CA210" ManuallyRouted="false" />
+        <AssociationConnector Association="TMDTModel.FK__SANPHAM__MaLoai__4222D4EF" ManuallyRouted="false" />
+        <AssociationConnector Association="TMDTModel.FK__SANPHAM__MaKH__412EB0B6" ManuallyRouted="false" />
+        <AssociationConnector Association="TMDTModel.FK__TINNHAN__NguoiGu__6E01572D" ManuallyRouted="false" />
+        <AssociationConnector Association="TMDTModel.FK__TINNHAN__NguoiNh__6EF57B66" ManuallyRouted="false" />
+        <AssociationConnector Association="TMDTModel.FK__TINNHAN__MaSP__70DDC3D8" ManuallyRouted="false" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

@@ -1,0 +1,117 @@
+﻿@{
+    Layout = null;
+    var user = Session["user"] as ThuongMaiDienTu_DoAn.Models.NGUOIDUNG;
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - TechSecond Admin</title>
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+    <style>
+        body {
+            background: #f5f6fa;
+            font-family: "Segoe UI", sans-serif;
+        }
+
+        .sidebar {
+            width: 240px;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            background: #1e1e2f;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+        }
+
+            .sidebar h3 {
+                padding: 20px;
+                font-weight: bold;
+                color: #ffc107;
+                border-bottom: 1px solid #444;
+            }
+
+            .sidebar a {
+                color: #ccc;
+                padding: 12px 20px;
+                display: block;
+                text-decoration: none;
+                transition: 0.2s;
+            }
+
+                .sidebar a:hover, .sidebar a.active {
+                    background: #343a40;
+                    color: #fff;
+                }
+
+        .content {
+            margin-left: 240px;
+            padding: 30px;
+        }
+
+        .topbar {
+            background: #fff;
+            padding: 10px 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .admin-name {
+            font-weight: bold;
+            color: #007bff;
+        }
+    </style
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h3><i class="bi bi-shield-lock"></i> Admin Panel</h3>
+        <a href="@Url.Action("DuyetTin","Admin")" class="@(ViewBag.Title.Contains("Duyệt tin") ? "active" : "")">
+            <i class="bi bi-card-checklist"></i> Duyệt tin đăng
+        </a>
+        <a href="@Url.Action("QuanLyDonHang","Admin")" class="@(ViewBag.Title.Contains("đơn hàng") ? "active" : "")">
+            <i class="bi bi-receipt"></i> Quản lý đơn hàng
+        </a>
+        <a href="@Url.Action("QuanLyNguoiDung","Admin")">
+            <i class="bi bi-people"></i> Quản lý người dùng
+        </a>
+        <a href="@Url.Action("DanhSachSanPham","Admin")">
+            <i class="bi bi-box"></i> Danh sách sản phẩm
+        </a>
+        <a href="@Url.Action("QuanLyKhieuNai","Admin")">
+            <i class="bi bi-exclamation-triangle"></i> Khiếu Nại
+        </a>
+        <a href="@Url.Action("DangXuat","TaiKhoan")" class="mt-auto text-danger">
+            <i class="bi bi-box-arrow-right"></i> Đăng xuất
+        </a>
+    </div>
+
+    <!-- Nội dung -->
+    <div class="content">
+        <div class="topbar mb-4">
+            <div class="fs-5 fw-bold text-dark">
+                <i class="bi bi-gear-wide-connected"></i> Khu vực quản trị
+            </div>
+            <div>
+                <span class="admin-name">
+                    <i class="bi bi-person-circle"></i> @user.HoTen
+                </span>
+            </div>
+        </div>
+
+        <main>
+            @RenderBody()
+        </main>
+    </div>
+
+    <script src="~/Scripts/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,121 @@
+﻿@model IEnumerable<ThuongMaiDienTu_DoAn.Models.CT_GIOHANG>
+
+@{
+    ViewBag.Title = "Giỏ hàng của bạn";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container my-5">
+    <h2 class="fw-bold text-primary mb-4">
+        <i class="bi bi-cart4"></i> Giỏ hàng của bạn
+    </h2>
+
+    <!-- 🔔 Hiển thị thông báo -->
+    @if (TempData["CartOK"] != null)
+    {
+        <div id="alertBox" class="alert alert-success text-center fw-bold shadow-sm">
+            @TempData["CartOK"]
+        </div>
+        TempData.Remove("CartOK");
+    }
+    @if (TempData["CartError"] != null)
+    {
+        <div id="alertBox" class="alert alert-danger text-center fw-bold shadow-sm">
+            @TempData["CartError"]
+        </div>
+        TempData.Remove("CartError");
+    }
+    @if (TempData["CartWarning"] != null)
+    {
+        <div id="alertBox" class="alert alert-warning text-center fw-bold shadow-sm">
+            @TempData["CartWarning"]
+        </div>
+        TempData.Remove("CartWarning");
+    }
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="alert alert-info text-center">
+            Giỏ hàng của bạn hiện đang trống.
+            <a href="@Url.Action("Index", "SanPham")" class="btn btn-primary ms-2">Tiếp tục mua sắm</a>
+        </div>
+    }
+    else
+    {
+        decimal tongTien = Model.Sum(x => x.ThanhTien) ?? 0;
+
+        <table class="table table-bordered table-hover align-middle shadow-sm">
+            <thead class="table-primary text-center">
+                <tr>
+                    <th>Ảnh</th>
+                    <th>Tên sản phẩm</th>
+                    <th style="width:160px;">Số lượng</th>
+                    <th>Thành tiền</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    var anh = item.SANPHAM.HINHANHSPs.FirstOrDefault(h => h.AnhBia == true);
+                    var url = anh != null ? Url.Content("~/Content/Images/" + anh.URLAnh) : Url.Content("~/Content/Images/default.jpg");
+
+                    <tr>
+                        <td class="text-center">
+                            <img src="@url" alt="" width="80" class="rounded shadow-sm" />
+                        </td>
+                        <td>@item.SANPHAM.TenSP</td>
+
+                        <td class="text-center">
+                            <div class="input-group justify-content-center">
+                                <a href="@Url.Action("Giam", "GioHang", new { id = item.MaSP })" class="btn btn-outline-secondary btn-sm">−</a>
+                                <input type="text" class="form-control text-center" value="@item.SoLuong" style="width:60px;" readonly />
+                                <a href="@Url.Action("Tang", "GioHang", new { id = item.MaSP })" class="btn btn-outline-secondary btn-sm">+</a>
+                            </div>
+                        </td>
+
+                        <td class="text-end text-danger fw-bold">@string.Format("{0:N0} ₫", item.ThanhTien)</td>
+                        <td class="text-center">
+                            <a href="@Url.Action("Xoa", "GioHang", new { id = item.MaSP })" class="btn btn-outline-danger btn-sm">
+                                <i class="bi bi-trash"></i> Xóa
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <!-- ✅ Khu vực tổng tiền + thanh toán -->
+        <div class="d-flex justify-content-end mt-4">
+            <div class="p-4 bg-light rounded-3 shadow-sm text-end" style="min-width: 400px;">
+                <h5 class="mb-3">
+                    Tổng cộng:
+                    <span class="text-danger fw-bold fs-5">@String.Format("{0:N0} ₫", tongTien)</span>
+                </h5>
+
+                <form action="@Url.Action("DatHang", "HoaDon")" method="post">
+                    <button type="submit"
+                            class="btn btn-warning fw-bold px-4 py-2 w-100 shadow-sm"
+                            style="border-radius: 10px;">
+                        <i class="bi bi-truck"></i> Thanh toán khi nhận hàng
+                    </button>
+                </form>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        // 🌟 Tự động ẩn thông báo sau 3 giây
+        setTimeout(function () {
+            var alertBox = document.getElementById("alertBox");
+            if (alertBox) {
+                alertBox.style.transition = "opacity 0.5s ease";
+                alertBox.style.opacity = "0";
+                setTimeout(() => alertBox.remove(), 500);
+            }
+        }, 3000);
+    </script>
+}

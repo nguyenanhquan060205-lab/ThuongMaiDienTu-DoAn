@@ -1,0 +1,68 @@
+﻿@model ThuongMaiDienTu_DoAn.Models.SANPHAM
+@{
+    ViewBag.Title = "Chi tiết sản phẩm";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-5">
+    <div class="row align-items-start">
+        <!-- Ảnh sản phẩm -->
+        <div class="col-md-6 text-center">
+            @{
+                var anhBia = Model.HINHANHSPs.FirstOrDefault(a => a.AnhBia == true)?.URLAnh ?? "no-image.jpg";
+            }
+            <img src="~/Content/Images/@anhBia" alt="@Model.TenSP"
+                 class="img-fluid rounded shadow-sm border" style="max-height:400px; object-fit:contain;" />
+        </div>
+
+        <!-- Thông tin sản phẩm -->
+        <div class="col-md-6">
+            <h3 class="fw-bold">@Model.TenSP</h3>
+            <p class="text-danger fs-4 fw-bold">@String.Format("{0:N0} ₫", Model.Gia)</p>
+            <p><b>Mô tả:</b> @Model.MoTa</p>
+            <p>
+                <b>Số lượng còn:</b>
+                <span class="fw-bold @(Model.SoLuong > 0 ? "text-success" : "text-danger")">
+                    @(Model.SoLuong > 0 ? Model.SoLuong.ToString() : "Hết hàng")
+                </span>
+            </p>
+            <p>
+                <b>Trạng thái:</b>
+                <span class="badge @(Model.TrangThai == "Đã bán" ? "bg-danger" : Model.TrangThai == "Đã duyệt" ? "bg-success" : "bg-secondary")">
+                    @Model.TrangThai
+                </span>
+            </p>
+
+            <!-- Thông báo (nếu có) -->
+            @if (TempData["ThongBao"] != null)
+            {
+                <div class="alert alert-warning text-center mt-3 shadow-sm" id="thongbao">
+                    @TempData["ThongBao"]
+                </div>
+                <script>
+                    setTimeout(() => {
+                        const tb = document.getElementById("thongbao");
+                        if (tb) tb.style.display = "none";
+                    }, 3000);
+                </script>
+            }
+
+            <!-- Nút hành động -->
+            <div class="mt-4">
+                @if (Model.SoLuong > 0 && Model.TrangThai != "Đã bán")
+                {
+                    <a href="@Url.Action("Them", "GioHang", new { id = Model.MaSP })"
+                       class="btn btn-warning fw-bold text-dark px-4 py-2">
+                        <i class="bi bi-cart-plus"></i> Thêm vào giỏ hàng
+                    </a>
+                }
+                else
+                {
+                    <button class="btn btn-secondary fw-bold px-4 py-2" disabled>
+                        <i class="bi bi-x-circle"></i> Hết hàng
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+</div>

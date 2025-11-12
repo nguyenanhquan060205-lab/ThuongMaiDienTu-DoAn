@@ -1,0 +1,53 @@
+﻿@model IEnumerable<ThuongMaiDienTu_DoAn.Models.KHIEUNAI>
+@{
+    ViewBag.Title = "Quản lý khiếu nại";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<h3 class="fw-bold text-primary mb-3"><i class="bi bi-exclamation-triangle"></i> Quản lý khiếu nại</h3>
+
+<table class="table table-hover table-bordered align-middle shadow-sm">
+    <thead class="table-dark text-center">
+        <tr>
+            <th>Mã KN</th>
+            <th>Người khiếu nại</th>
+            <th>Sản phẩm</th>
+            <th>Nội dung</th>
+            <th>Trạng thái</th>
+            <th>Ngày gửi</th>
+            <th>Phản hồi</th>
+            <th>Thao tác</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var kn in Model)
+        {
+            <tr>
+                <td>@kn.MaKN</td>
+                <td>@kn.NGUOIDUNG?.HoTen</td>
+                <td>@kn.SANPHAM?.TenSP</td>
+                <td>@kn.MoTa</td>
+                <td class="text-center">
+                    <span class="badge @(kn.TrangThai == "Đã giải quyết" ? "bg-success" :
+                                         kn.TrangThai == "Đang xử lý" ? "bg-warning text-dark" : "bg-secondary")">
+                        @kn.TrangThai
+                    </span>
+                </td>
+                <td>@kn.NgayGui?.ToString("dd/MM/yyyy HH:mm")</td>
+                <td>@kn.PhanHoi</td>
+                <td>
+                    <form action="@Url.Action("CapNhatKhieuNai", "Admin")" method="post" class="d-flex">
+                        <input type="hidden" name="id" value="@kn.MaKN" />
+                        <select name="tt" class="form-select form-select-sm me-2">
+                            <option @("Chưa xử lý" == kn.TrangThai ? "selected" : "")>Chưa xử lý</option>
+                            <option @("Đang xử lý" == kn.TrangThai ? "selected" : "")>Đang xử lý</option>
+                            <option @("Đã giải quyết" == kn.TrangThai ? "selected" : "")>Đã giải quyết</option>
+                        </select>
+                        <input type="text" name="ph" class="form-control form-control-sm me-2" placeholder="Phản hồi..." />
+                        <button type="submit" class="btn btn-success btn-sm">Lưu</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

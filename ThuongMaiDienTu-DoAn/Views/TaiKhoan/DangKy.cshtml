@@ -1,0 +1,53 @@
+﻿@model ThuongMaiDienTu_DoAn.Models.NGUOIDUNG
+@{
+    ViewBag.Title = "Đăng ký tài khoản";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-5">
+        <div class="card shadow">
+            <div class="card-body">
+                <h4 class="text-center mb-3">Đăng ký</h4>
+
+                @if (ViewBag.Error != null)
+                {
+                    <div class="alert alert-danger">@ViewBag.Error</div>
+                }
+
+                <form method="post">
+                    <div class="mb-3">
+                        <label>Họ tên</label>
+                        <input asp-for="HoTen" class="form-control" name="HoTen" required />
+                    </div>
+                    <div class="mb-3">
+                        <label>Tài khoản</label>
+                        <input asp-for="TaiKhoan" class="form-control" name="TaiKhoan" required />
+                    </div>
+                    <div class="mb-3">
+                        <label>Mật khẩu</label>
+                        <input asp-for="MatKhau" class="form-control" name="MatKhau" type="password" required />
+                    </div>
+                    <div class="mb-3">
+                        <label>Email</label>
+                        <input asp-for="Email" class="form-control" name="Email" required />
+                    </div>
+                    <div class="mb-3">
+                        <label>SĐT</label>
+                        <input asp-for="SDT" class="form-control" name="SDT" />
+                    </div>
+                    <div class="mb-3">
+                        <label>Địa chỉ</label>
+                        <textarea asp-for="DiaChi" class="form-control" name="DiaChi"></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-success w-100">Đăng ký</button>
+                </form>
+
+                <p class="text-center mt-3">
+                    Đã có tài khoản? <a href="@Url.Action("DangNhap","TaiKhoan")">Đăng nhập</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>

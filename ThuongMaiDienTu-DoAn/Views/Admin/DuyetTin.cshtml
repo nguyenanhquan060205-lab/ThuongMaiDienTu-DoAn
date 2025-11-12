@@ -1,0 +1,58 @@
+﻿@model IEnumerable<ThuongMaiDienTu_DoAn.Models.SANPHAM>
+@{
+    ViewBag.Title = "Duyệt tin đăng";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="container my-4">
+    <h4 class="fw-bold text-primary mb-4">
+        <i class="bi bi-check2-circle"></i> Duyệt tin đăng
+    </h4>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+
+    <table class="table table-bordered table-hover text-center align-middle shadow-sm">
+        <thead class="table-primary">
+            <tr>
+                <th>Mã</th>
+                <th>Tên sản phẩm</th>
+                <th>Người đăng</th>
+                <th>Ngày tạo</th>
+                <th>Trạng thái</th>
+                <th>Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var sp in Model)
+            {
+                <tr>
+                    <td>@sp.MaSP</td>
+                    <td>@sp.TenSP</td>
+                    <td>@sp.NGUOIDUNG.HoTen</td>
+                    <td>@(sp.NgayTao.HasValue ? sp.NgayTao.Value.ToString("dd/MM/yyyy") : "")</td>
+                    <td>
+                        <span class="badge @(sp.TrangThai == "Đã duyệt" ? "bg-success" : "bg-warning text-dark")">
+                            @sp.TrangThai
+                        </span>
+                    </td>
+                    <td>
+                        <form action="@Url.Action("DoiTrangThai", "Admin")" method="post" class="d-inline">
+                            <input type="hidden" name="id" value="@sp.MaSP" />
+                            @if (sp.TrangThai == "Chờ duyệt")
+                            {
+                                <button type="submit" name="tt" value="Đã duyệt" class="btn btn-success btn-sm">Duyệt</button>
+                            }
+                            else
+                            {
+                                <button type="submit" name="tt" value="Chờ duyệt" class="btn btn-warning btn-sm">Thu hồi</button>
+                            }
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

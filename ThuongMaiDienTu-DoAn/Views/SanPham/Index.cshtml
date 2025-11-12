@@ -1,0 +1,32 @@
+﻿ 
+@model IEnumerable<ThuongMaiDienTu_DoAn.Models.SANPHAM>
+@{ var loai = ViewBag.LoaiSP as List<ThuongMaiDienTu_DoAn.Models.LOAISANPHAM>; }
+<h2 class="fw-bold text-center mb-4">Sản phẩm mới nhất</h2>
+
+<div class="d-flex justify-content-center mb-4 flex-wrap gap-2">
+    <a class="btn @(Request["maloai"]==null?"btn-warning":"btn-outline-warning")"
+       href="@Url.Action("Index")">Tất cả</a>
+    @foreach (var l in loai)
+    {
+        <a class="btn @(Request["maloai"]==l.MaLoai.ToString()?"btn-warning":"btn-outline-warning")"
+           href="@Url.Action("Index", new { maloai = l.MaLoai, q = Request["q"] })">@l.TenLoai</a>
+    }
+</div>
+
+<div class="row">
+    @foreach (var sp in Model)
+    {
+        var anh = sp.HINHANHSPs.FirstOrDefault(a => a.AnhBia == true)?.URLAnh ?? "noimage.jpg";
+        <div class="col-md-3 mb-4">
+            <div class="card h-100 shadow-sm">
+                <img src="~/Content/Images/@anh" class="card-img-top" style="height:220px;object-fit:cover" />
+                <div class="card-body">
+                    <h6 class="fw-bold">@sp.TenSP</h6>
+                    <p class="text-danger mb-1">@String.Format("{0:N0}₫", sp.Gia)</p>
+                    <p class="text-muted small">@sp.LOAISANPHAM.TenLoai</p>
+                    <a class="btn btn-sm btn-warning w-100" href="@Url.Action("ChiTiet", new { id = sp.MaSP })">Xem chi tiết</a>
+                </div>
+            </div>
+        </div>
+    }
+</div>

@@ -1,0 +1,37 @@
+﻿@{
+    int tongSoLuong = ViewBag.TongSoLuong != null ? (int)ViewBag.TongSoLuong : 0;
+}
+
+<a href="@Url.Action("Index", "GioHang")"
+   class="btn btn-outline-light btn-sm px-3 position-relative d-inline-flex align-items-center fw-bold me-1">
+    <i class="bi bi-cart3 me-1"></i><span>Giỏ hàng</span>
+
+    @if (tongSoLuong > 0)
+    {
+        <span class="cart-badge badge rounded-pill bg-danger shadow-sm">@tongSoLuong</span>
+    }
+</a>
+
+<style>
+ 
+    .cart-badge {
+        position: absolute;
+        top: -6px; 
+        right: -10px;  
+        font-size: .65rem;
+        padding: 2px 6px;
+    }
+
+  
+    .btn-outline-light {
+        border-color: #ffc107;
+        color: #fff;
+        transition: .25s ease;
+    }
+
+        .btn-outline-light:hover {
+            background-color: #ffc107;
+            color: #000;
+            border-color: #ffc107;
+        }
+</style>

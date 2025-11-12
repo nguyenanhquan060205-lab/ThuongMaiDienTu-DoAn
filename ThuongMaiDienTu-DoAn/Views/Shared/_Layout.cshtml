@@ -1,39 +1,137 @@
-﻿<!DOCTYPE html>
-<html>
+﻿@using ThuongMaiDienTu_DoAn.Models
+@{
+    var user = Session["user"] as ThuongMaiDienTu_DoAn.Models.NGUOIDUNG;
+    var anh = user != null && !string.IsNullOrEmpty(user.AnhDaiDien)
+        ? Url.Content("~/Content/Avatars/" + user.AnhDaiDien)
+        : Url.Content("~/Content/Avatars/Default.jpg");
+}
+<!DOCTYPE html>
+<html lang="vi">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewBag.Title - My ASP.NET Application</title>
-    @Styles.Render("~/Content/css")
-    @Scripts.Render("~/bundles/modernizr")
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewBag.Title - TechSecond</title>
+    <link rel="stylesheet" href="~/Content/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <script src="~/Scripts/bootstrap.bundle.min.js"></script>
+
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .navbar {
+            background: linear-gradient(90deg, #212529, #343a40);
+        }
+
+        .navbar-brand {
+            color: #ffc107 !important;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .nav-link {
+            color: #ddd !important;
+            font-weight: 500;
+            transition: .2s;
+        }
+
+            .nav-link:hover, .nav-link.active {
+                color: #ffc107 !important;
+            }
+
+        footer {
+            background: #212529;
+            color: #bbb;
+            padding: 25px 0;
+            text-align: center;
+            margin-top: 50px;
+        }
+
+            footer a {
+                color: #ffc107;
+                text-decoration: none;
+            }
+
+                footer a:hover {
+                    text-decoration: underline;
+                }
+    </style>
 </head>
+
 <body>
-    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark">
+    <!-- 🧭 NAVBAR -->
+    <nav class="navbar navbar-expand-lg navbar-dark shadow-sm sticky-top">
         <div class="container">
-            @Html.ActionLink("Application name", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
-            <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" title="Toggle navigation" aria-controls="navbarSupportedContent"
-                    aria-expanded="false" aria-label="Toggle navigation">
+            <a class="navbar-brand" href="@Url.Action("Index", "Home")"><i class="fa-solid fa-cart-shopping me-2"></i>TechSecond</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMenu">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse d-sm-inline-flex justify-content-between">
-                <ul class="navbar-nav flex-grow-1">
-                    <li>@Html.ActionLink("Home", "Index", "Home", new { area = "" }, new { @class = "nav-link" })</li>
-                    <li>@Html.ActionLink("About", "About", "Home", new { area = "" }, new { @class = "nav-link" })</li>
-                    <li>@Html.ActionLink("Contact", "Contact", "Home", new { area = "" }, new { @class = "nav-link" })</li>
+
+            <div class="collapse navbar-collapse" id="navbarMenu">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item"><a class="nav-link @(ViewBag.Title=="Trang chủ"?"active":"")" href="@Url.Action("Index","Home")">Trang chủ</a></li>
+                    <li class="nav-item"><a class="nav-link" href="@Url.Action("Index","SanPham")">Sản phẩm</a></li>
+                    @if (user != null && user.VaiTro == "Admin")
+                    {
+                        <li class="nav-item"><a class="nav-link" href="@Url.Action("Index","Admin")">Quản trị</a></li>
+                    }
                 </ul>
+
+                <div class="d-flex align-items-center ms-auto">
+                    <!-- TÌM KIẾM -->
+                    <form class="d-flex align-items-center me-5" method="get" action="@Url.Action("TimKiem","SanPham")">
+                        <input class="form-control form-control-sm me-2" type="text" name="q" placeholder="Tìm kiếm sản phẩm..." style="border-radius:20px; min-width:550px;" />
+                        <button class="btn btn-warning btn-sm px-3" type="submit"><i class="fa fa-search"></i></button>
+                    </form>
+
+                    <!-- GIỎ HÀNG -->
+                    <div class="d-flex align-items-center ms-auto gap-3">
+                        @Html.Action("CartIcon", "GioHang")    
+ 
+                    </div>
+
+                    <!-- NGƯỜI DÙNG -->
+                    @if (user != null)
+                    {
+                        <div class="dropdown">
+                            <a class="nav-link dropdown-toggle text-white d-flex align-items-center" href="#" data-bs-toggle="dropdown">
+                                <img src="@anh"
+                                     onerror="this.src='/Content/Avatars/default.jpg';"
+                                     class="rounded-circle me-2 shadow-sm" width="28" height="28" />
+                                @user.HoTen
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="@Url.Action("ThongTin","TaiKhoan")"><i class="fa fa-user me-2"></i> Thông tin cá nhân</a></li>
+                                <li><a class="dropdown-item" href="@Url.Action("TaoMoi","SanPham")"><i class="fa fa-user me-2"></i> Đăng bán</a></li>
+                                <li><a class="dropdown-item" href="@Url.Action("DangXuat","TaiKhoan")"><i class="fa fa-sign-out me-2"></i> Đăng xuất</a></li>
+                            </ul>
+                        </div>
+                    }
+                    else
+                    {
+                        <a class="btn btn-warning btn-sm" href="@Url.Action("DangNhap","TaiKhoan")">Đăng nhập</a>
+                    }
+                </div>
             </div>
         </div>
     </nav>
-    <div class="container body-content">
-        @RenderBody()
-        <hr />
-        <footer>
-            <p>&copy; @DateTime.Now.Year - My ASP.NET Application</p>
-        </footer>
-    </div>
 
-    @Scripts.Render("~/bundles/jquery")
-    @Scripts.Render("~/bundles/bootstrap")
-    @RenderSection("scripts", required: false)
+    <!-- 📦 BODY -->
+    <main class="container-fluid p-0">
+        @RenderBody()
+    </main>
+
+    <!-- 🦶 FOOTER -->
+    <footer>
+        <div class="container">
+            <p>© 2025 - <b>TechSecond</b> | Đồ án Hệ quản trị cơ sở dữ liệu</p>
+            <p><a href="#">Chính sách</a> | <a href="#">Điều khoản</a> | <a href="#">Liên hệ</a></p>
+        </div>
+    </footer>
+
+    <!-- ✅ THÊM DÒNG NÀY Ở CUỐI -->
+    @RenderSection("Scripts", required: false)
 </body>
 </html>

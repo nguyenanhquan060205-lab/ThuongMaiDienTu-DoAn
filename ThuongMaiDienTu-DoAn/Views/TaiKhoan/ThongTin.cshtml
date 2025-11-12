@@ -1,0 +1,87 @@
+﻿@model ThuongMaiDienTu_DoAn.Models.NGUOIDUNG
+@{
+    ViewBag.Title = "Thông tin cá nhân";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<section class="container my-5">
+    <h3 class="fw-bold mb-4">Thông tin cá nhân</h3>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+
+    @using (Html.BeginForm("CapNhatThongTin", "TaiKhoan", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+        @Html.AntiForgeryToken()  
+
+        @Html.HiddenFor(m => m.MaKH)
+
+<div class="row">
+    <!-- Ảnh đại diện -->
+    <div class="col-md-3 text-center">
+        <div class="avatar-upload position-relative mb-3">
+            <img id="previewAvatar"
+                 src="~/Content/Avatars/@(Model.AnhDaiDien ?? "default.jpg")"
+                 class="rounded-circle shadow-sm avatar-img"
+                 style="width: 130px; height: 130px; object-fit: cover; border: 3px solid #f1f1f1;" />
+
+            <div class="avatar-overlay d-flex align-items-center justify-content-center">
+                <i class="fa fa-camera fa-lg text-white"></i>
+            </div>
+        </div>
+
+        <!-- Nút chọn file -->
+        <input type="file" id="fileUpload" name="fileUpload"
+               class="d-none" accept="image/*" onchange="previewFile(event)" />
+        <button type="button" class="btn btn-outline-primary btn-sm rounded-pill px-3"
+                onclick="document.getElementById('fileUpload').click()">
+            <i class="fa fa-camera me-1"></i> Đổi ảnh đại diện
+        </button>
+    </div>
+
+
+    <!-- Thông tin -->
+    <div class="col-md-9">
+        <div class="mb-3">
+            @Html.LabelFor(m => m.HoTen)
+            @Html.TextBoxFor(m => m.HoTen, new { @class = "form-control" })
+        </div>
+        <div class="mb-3">
+            @Html.LabelFor(m => m.Email)
+            @Html.TextBoxFor(m => m.Email, new { @class = "form-control" })
+        </div>
+        <div class="mb-3">
+            @Html.LabelFor(m => m.SDT, "Số điện thoại")
+            @Html.TextBoxFor(m => m.SDT, new { @class = "form-control" })
+        </div>
+        <div class="mb-3">
+            @Html.LabelFor(m => m.DiaChi)
+            @Html.TextBoxFor(m => m.DiaChi, new { @class = "form-control" })
+        </div>
+        <div class="mb-3">
+            @Html.LabelFor(m => m.GioiTinh)
+            @Html.DropDownListFor(m => m.GioiTinh,
+                new SelectList(new[] { "Nam", "Nữ", "Khác" }, Model.GioiTinh),
+                "Chọn giới tính", new { @class = "form-control" })
+        </div>
+        <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+    </div>
+</div>
+    }
+</section>
+
+@section Scripts {
+    <script>
+        function previewFile(event) {
+            const img = document.getElementById("previewAvatar");
+            const file = event.target.files[0];
+            if (file) img.src = URL.createObjectURL(file);
+        }
+    </script>
+}

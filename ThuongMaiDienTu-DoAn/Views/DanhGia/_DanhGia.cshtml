@@ -1,0 +1,11 @@
+﻿@model IEnumerable<ThuongMaiDienTu_DoAn.Models.DANHGIA>
+
+@foreach (var dg in Model)
+{
+    <div class="border-bottom mb-3">
+        <strong>@dg.NGUOIDUNG.HoTen</strong>
+        <span class="text-warning">@new string('★', dg.SoSao)</span>
+        <p>@dg.NoiDung</p>
+        <small>@dg.NgayDG.ToString("dd/MM/yyyy HH:mm")</small>
+    </div>
+}

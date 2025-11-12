@@ -1,0 +1,18 @@
+﻿@model IEnumerable<ThuongMaiDienTu_DoAn.Models.SANPHAM>
+
+<h2>Tin của tôi</h2>
+<table class="table table-bordered">
+    <tr>
+        <th>Tên sản phẩm</th>
+        <th>Ngày tạo</th>
+        <th>Trạng thái</th>
+    </tr>
+    @foreach (var sp in Model)
+    {
+        <tr>
+            <td>@sp.TenSP</td>
+            <td>@($"{sp.NgayTao:dd/MM/yyyy}")</td>
+            <td>@sp.TrangThai</td>
+        </tr>
+    }
+</table>

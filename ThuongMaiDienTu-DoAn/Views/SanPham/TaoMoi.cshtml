@@ -1,0 +1,28 @@
+﻿
+@model ThuongMaiDienTu_DoAn.Models.SANPHAM
+@{
+    ViewBag.Title = "Đăng tin";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<h3 class="fw-bold mb-3">Đăng tin bán hàng</h3>
+@using (Html.BeginForm("TaoMoi", "SanPham", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    <div class="row g-3">
+        <div class="col-md-6">
+            @Html.LabelFor(m => m.TenSP) @Html.TextBoxFor(m => m.TenSP, new { @class = "form-control", required = "required" })
+            @Html.LabelFor(m => m.MaLoai, "Danh mục") @Html.DropDownList("MaLoai", null, new { @class = "form-select" })
+            @Html.LabelFor(m => m.Gia) @Html.TextBoxFor(m => m.Gia, "{0:N0}", new { @class = "form-control", type = "number", min = "0" })
+            @Html.LabelFor(m => m.SoLuong) @Html.TextBoxFor(m => m.SoLuong, new { @class = "form-control", type = "number", min = "1" })
+        </div>
+        <div class="col-md-6">
+            @Html.LabelFor(m => m.MoTa) @Html.TextAreaFor(m => m.MoTa, 8, 50, new { @class = "form-control" })
+            <label class="mt-2">Ảnh (nhiều tấm):</label>
+            <input type="file" name="files" multiple class="form-control" />
+        </div>
+    </div>
+    <button class="btn btn-warning mt-3">Đăng tin</button>
+}
+@if (TempData["test"] != null)
+{
+    <div>@TempData["test"]</div>
+}

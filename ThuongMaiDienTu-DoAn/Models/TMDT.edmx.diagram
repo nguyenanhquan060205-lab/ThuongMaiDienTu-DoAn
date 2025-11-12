@@ -4,18 +4,18 @@
   <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
-      <Diagram DiagramId="902fe050939142d78a5fb6a864daadf3" Name="Diagram1">
+      <Diagram DiagramId="ad674be8439149a09ec9fd0f9753eeb0" Name="Diagram1">
         <EntityTypeShape EntityType="TMDTModel.CT_GIOHANG" Width="1.5" PointX="5.25" PointY="11.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="TMDTModel.CT_HOADON" Width="1.5" PointX="5.25" PointY="14.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TMDTModel.CT_HOADON" Width="1.5" PointX="5.25" PointY="14.875" IsExpanded="true" />
         <EntityTypeShape EntityType="TMDTModel.DANHGIA" Width="1.5" PointX="3" PointY="8" IsExpanded="true" />
         <EntityTypeShape EntityType="TMDTModel.GIOHANG" Width="1.5" PointX="3" PointY="11.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="TMDTModel.HINHANHSP" Width="1.5" PointX="10.25" PointY="13.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="TMDTModel.HINHANHSP" Width="1.5" PointX="10.25" PointY="13.375" IsExpanded="true" />
         <EntityTypeShape EntityType="TMDTModel.HOADON" Width="1.5" PointX="3" PointY="14.5" IsExpanded="true" />
-        <EntityTypeShape EntityType="TMDTModel.KHIEUNAI" Width="1.5" PointX="6" PointY="7.875" IsExpanded="true" />
-        <EntityTypeShape EntityType="TMDTModel.LOAISANPHAM" Width="1.5" PointX="5.75" PointY="18.375" IsExpanded="true" />
-        <EntityTypeShape EntityType="TMDTModel.NGUOIDUNG" Width="1.5" PointX="0.75" PointY="8.875" IsExpanded="true" />
-        <EntityTypeShape EntityType="TMDTModel.SANPHAM" Width="1.5" PointX="8" PointY="11.875" IsExpanded="true" />
-        <EntityTypeShape EntityType="TMDTModel.TINNHAN" Width="1.5" PointX="10.25" PointY="9.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="TMDTModel.KHIEUNAI" Width="1.5" PointX="6" PointY="8" IsExpanded="true" />
+        <EntityTypeShape EntityType="TMDTModel.LOAISANPHAM" Width="1.5" PointX="5.75" PointY="18.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="TMDTModel.NGUOIDUNG" Width="1.5" PointX="0.75" PointY="9" IsExpanded="true" />
+        <EntityTypeShape EntityType="TMDTModel.SANPHAM" Width="1.5" PointX="8" PointY="12" IsExpanded="true" />
+        <EntityTypeShape EntityType="TMDTModel.TINNHAN" Width="1.5" PointX="10.25" PointY="9.375" IsExpanded="true" />
         <AssociationConnector Association="TMDTModel.FK__CT_GIOHANG__MaGH__5070F446" ManuallyRouted="false" />
         <AssociationConnector Association="TMDTModel.FK__CT_GIOHANG__MaSP__5165187F" ManuallyRouted="false" />
         <AssociationConnector Association="TMDTModel.FK__CT_HOADON__MaHD__5CD6CB2B" ManuallyRouted="false" />

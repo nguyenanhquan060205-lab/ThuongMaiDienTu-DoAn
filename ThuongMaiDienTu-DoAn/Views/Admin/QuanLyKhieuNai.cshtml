@@ -1,53 +1,116 @@
 ﻿@model IEnumerable<ThuongMaiDienTu_DoAn.Models.KHIEUNAI>
+
 @{
     ViewBag.Title = "Quản lý khiếu nại";
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
 }
 
-<h3 class="fw-bold text-primary mb-3"><i class="bi bi-exclamation-triangle"></i> Quản lý khiếu nại</h3>
+<div class="container-fluid px-4 mt-4">
+    <h2 class="fw-bold text-primary mb-3">Quản lý khiếu nại</h2>
 
-<table class="table table-hover table-bordered align-middle shadow-sm">
-    <thead class="table-dark text-center">
-        <tr>
-            <th>Mã KN</th>
-            <th>Người khiếu nại</th>
-            <th>Sản phẩm</th>
-            <th>Nội dung</th>
-            <th>Trạng thái</th>
-            <th>Ngày gửi</th>
-            <th>Phản hồi</th>
-            <th>Thao tác</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var kn in Model)
-        {
-            <tr>
-                <td>@kn.MaKN</td>
-                <td>@kn.NGUOIDUNG?.HoTen</td>
-                <td>@kn.SANPHAM?.TenSP</td>
-                <td>@kn.MoTa</td>
-                <td class="text-center">
-                    <span class="badge @(kn.TrangThai == "Đã giải quyết" ? "bg-success" :
-                                         kn.TrangThai == "Đang xử lý" ? "bg-warning text-dark" : "bg-secondary")">
-                        @kn.TrangThai
-                    </span>
-                </td>
-                <td>@kn.NgayGui?.ToString("dd/MM/yyyy HH:mm")</td>
-                <td>@kn.PhanHoi</td>
-                <td>
-                    <form action="@Url.Action("CapNhatKhieuNai", "Admin")" method="post" class="d-flex">
-                        <input type="hidden" name="id" value="@kn.MaKN" />
-                        <select name="tt" class="form-select form-select-sm me-2">
-                            <option @("Chưa xử lý" == kn.TrangThai ? "selected" : "")>Chưa xử lý</option>
-                            <option @("Đang xử lý" == kn.TrangThai ? "selected" : "")>Đang xử lý</option>
-                            <option @("Đã giải quyết" == kn.TrangThai ? "selected" : "")>Đã giải quyết</option>
-                        </select>
-                        <input type="text" name="ph" class="form-control form-control-sm me-2" placeholder="Phản hồi..." />
-                        <button type="submit" class="btn btn-success btn-sm">Lưu</button>
-                    </form>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+    @using (Html.BeginForm())
+    {@Html.AntiForgeryToken()}
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+            <h5 class="fw-bold text-dark mb-3">Danh sách khiếu nại</h5>
+
+            <table class="table table-bordered text-center align-middle">
+                <thead class="table-info">
+                    <tr>
+                        <th>Mã KN</th>
+                        <th>Người gửi</th>
+                        <th>Sản phẩm</th>
+                        <th>Nội dung</th>
+                        <th>Ngày gửi</th>
+                        <th>Trạng thái</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var item in Model)
+                        {
+                            string badgeClass =
+                                item.TrangThai == "Chưa xử lý" ? "bg-warning text-dark" :
+                                item.TrangThai == "Đang xử lý" ? "bg-info text-white" :
+                                "bg-success text-white";
+
+                            <tr id="row-@item.MaKN">
+                                <td>@item.MaKN</td>
+                                <td>@item.NGUOIDUNG.HoTen</td>
+                                <td>@item.SANPHAM.TenSP</td>
+                                <td class="text-start">@item.MoTa</td>
+                                <td>@string.Format("{0:dd/MM/yyyy}", item.NgayGui)</td>
+                                <td>
+                                    <span class="badge badge-status @badgeClass px-3 py-2 fs-6">
+                                        @item.TrangThai
+                                    </span>
+                                </td>
+                                <td class="text-nowrap">
+                                    @if (item.TrangThai != "Đã giải quyết")
+                                    {
+                                        <button type="button"
+                                                class="btn btn-sm btn-success btn-set"
+                                                data-id="@item.MaKN"
+                                                data-state="Đã giải quyết">
+                                            <i class="bi bi-check-circle me-1"></i>Đã xử lý
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-sm btn-outline-secondary" disabled>
+                                            <i class="bi bi-check2-all"></i> Hoàn tất
+                                        </button>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr><td colspan="7" class="text-muted py-4">Không có khiếu nại nào.</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script>
+$(document).on('click', '.btn-set', function () {
+    const id = $(this).data('id');
+    const newState = $(this).data('state');
+    const token = $('input[name="__RequestVerificationToken"]').val();
+    const btn = $(this);
+
+    btn.prop('disabled', true)
+       .html('<span class="spinner-border spinner-border-sm"></span> Đang xử lý...');
+
+    $.post('@Url.Action("CapNhatTrangThaiKN","Admin")',
+        { id: id, trangThai: newState, __RequestVerificationToken: token })
+        .done(function (res) {
+            if (res && res.ok) {
+                const row = $('#row-' + id);
+                const badge = row.find('.badge-status');
+                badge.text(res.status)
+                     .removeClass('bg-warning bg-info bg-success text-dark text-white')
+                     .addClass('bg-success text-white')
+                     .text('Đã giải quyết');
+
+                btn.removeClass('btn-success')
+                   .addClass('btn-outline-secondary')
+                   .html('<i class="bi bi-check2-all"></i> Hoàn tất');
+            } else {
+                alert('Cập nhật không thành công.');
+                btn.prop('disabled', false).text('Đã xử lý');
+            }
+        })
+        .fail(() => {
+            alert('Lỗi máy chủ!');
+            btn.prop('disabled', false).text('Đã xử lý');
+        });
+});
+</script>

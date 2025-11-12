@@ -1,117 +1,200 @@
 ﻿@{
-    Layout = null;
     var user = Session["user"] as ThuongMaiDienTu_DoAn.Models.NGUOIDUNG;
 }
 
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewBag.Title - TechSecond Admin</title>
-    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+    <meta charset="UTF-8">
+    <title>@ViewBag.Title - Admin Panel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
     <style>
         body {
-            background: #f5f6fa;
-            font-family: "Segoe UI", sans-serif;
+            background-color: #f6f8fb;
+            font-family: 'Segoe UI', sans-serif;
         }
 
+        /* ==== SIDEBAR ==== */
         .sidebar {
             width: 240px;
             height: 100vh;
             position: fixed;
-            left: 0;
-            top: 0;
-            background: #1e1e2f;
+            background: linear-gradient(180deg, #1e1e3b, #282852);
             color: #fff;
+            padding: 15px 10px;
+            top: 0;
+            left: 0;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .sidebar h2 {
+            font-size: 20px;
+            text-align: center;
+            color: #00d9ff;
+            font-weight: 600;
+            margin: 20px 0 35px;
+        }
+
+        .sidebar a {
             display: flex;
-            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            color: #bbb;
+            padding: 10px 18px;
+            margin: 5px 0;
+            text-decoration: none;
+            font-size: 15px;
+            border-radius: 8px;
+            transition: all 0.25s;
         }
 
-            .sidebar h3 {
-                padding: 20px;
-                font-weight: bold;
-                color: #ffc107;
-                border-bottom: 1px solid #444;
-            }
-
-            .sidebar a {
-                color: #ccc;
-                padding: 12px 20px;
-                display: block;
-                text-decoration: none;
-                transition: 0.2s;
-            }
-
-                .sidebar a:hover, .sidebar a.active {
-                    background: #343a40;
-                    color: #fff;
-                }
-
-        .content {
-            margin-left: 240px;
-            padding: 30px;
+        .sidebar a i {
+            width: 22px;
+            text-align: center;
         }
 
-        .topbar {
+        .sidebar a:hover,
+        .sidebar a.active {
+            color: #fff;
+            background: rgba(0, 217, 255, 0.2);
+            border-left: 3px solid #00d9ff;
+            padding-left: 15px;
+        }
+
+        .logout {
+            position: absolute;
+            bottom: 20px;
+            left: 15px;
+            color: #ff5555 !important;
+            font-weight: 500;
+        }
+
+        /* ==== MAIN AREA ==== */
+        .main {
+            margin-left: 250px;
+            padding: 25px;
+        }
+
+        .header {
             background: #fff;
-            padding: 10px 20px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-radius: 12px;
+            padding: 15px 25px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
         }
 
-        .admin-name {
+        .header h3 {
+            font-weight: 600;
+            color: #1a237e;
+            margin: 0;
+        }
+
+        .header .user {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .header .user img {
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            border: 2px solid #00d9ff;
+        }
+
+        /* ==== CONTENT ==== */
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            transition: 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+        }
+
+        .card h5 {
             font-weight: bold;
-            color: #007bff;
+            color: #333;
         }
-    </style
-</head>
-<body>
 
-    <!-- Sidebar -->
+        .card p {
+            color: #666;
+        }
+
+        .btn-primary {
+            background-color: #00c4ff;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background-color: #00a8e0;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 14px;
+            color: #777;
+        }
+
+        /* RESPONSIVE */
+        @@media (max-width: 991px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+            .main {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- SIDEBAR -->
     <div class="sidebar">
-        <h3><i class="bi bi-shield-lock"></i> Admin Panel</h3>
-        <a href="@Url.Action("DuyetTin","Admin")" class="@(ViewBag.Title.Contains("Duyệt tin") ? "active" : "")">
-            <i class="bi bi-card-checklist"></i> Duyệt tin đăng
-        </a>
-        <a href="@Url.Action("QuanLyDonHang","Admin")" class="@(ViewBag.Title.Contains("đơn hàng") ? "active" : "")">
-            <i class="bi bi-receipt"></i> Quản lý đơn hàng
-        </a>
-        <a href="@Url.Action("QuanLyNguoiDung","Admin")">
-            <i class="bi bi-people"></i> Quản lý người dùng
-        </a>
-        <a href="@Url.Action("DanhSachSanPham","Admin")">
-            <i class="bi bi-box"></i> Danh sách sản phẩm
-        </a>
-        <a href="@Url.Action("QuanLyKhieuNai","Admin")">
-            <i class="bi bi-exclamation-triangle"></i> Khiếu Nại
-        </a>
-        <a href="@Url.Action("DangXuat","TaiKhoan")" class="mt-auto text-danger">
-            <i class="bi bi-box-arrow-right"></i> Đăng xuất
-        </a>
+        <h2><i class="fa-solid fa-gear me-2"></i>Admin Panel</h2>
+        <a href="@Url.Action("Index","Admin")" class="active"><i class="fa-solid fa-chart-column"></i>Dashboard</a>
+        <a href="@Url.Action("DuyetTin","Admin")"><i class="fa-solid fa-box"></i>Quản lý sản phẩm</a>
+        <a href="@Url.Action("QuanLyDonHang","Admin")"><i class="fa-solid fa-file-invoice"></i>Quản lý đơn hàng</a>
+        <a href="@Url.Action("QuanLyNguoiDung","Admin")"><i class="fa-solid fa-users"></i>Quản lý người dùng</a>
+        <a href="@Url.Action("QuanLyLoaiSP","Admin")"><i class="fa-solid fa-layer-group"></i>Loại sản phẩm</a>
+        <a href="@Url.Action("QuanLyKhieuNai","Admin")"><i class="fa-solid fa-triangle-exclamation"></i>Quản lý khiếu nại</a>
+        <a href="@Url.Action("Chat","TinNhan")"><i class="fa-solid fa-comments"></i>Tin nhắn / Hỗ trợ</a>
+        <a href="@Url.Action("DangXuat","TaiKhoan")" class="logout"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a>
     </div>
 
-    <!-- Nội dung -->
-    <div class="content">
-        <div class="topbar mb-4">
-            <div class="fs-5 fw-bold text-dark">
-                <i class="bi bi-gear-wide-connected"></i> Khu vực quản trị
-            </div>
-            <div>
-                <span class="admin-name">
-                    <i class="bi bi-person-circle"></i> @user.HoTen
-                </span>
+    <!-- MAIN CONTENT -->
+    <div class="main">
+        <div class="header">
+            <h3>@ViewBag.Title</h3>
+            <div class="user">
+                @if (user != null)
+                {
+                    <img src="~/Content/Avatars/@user.AnhDaiDien" alt="Avatar" />
+                    <span>@user.HoTen</span>
+                }
             </div>
         </div>
 
-        <main>
-            @RenderBody()
-        </main>
+        @RenderBody()
+
+        <footer>© 2025 - TechSecond Admin Dashboard</footer>
     </div>
 
-    <script src="~/Scripts/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

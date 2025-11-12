@@ -1,18 +1,67 @@
 ﻿@model IEnumerable<ThuongMaiDienTu_DoAn.Models.SANPHAM>
+@{
+    ViewBag.Title = "Tin của tôi";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
 
-<h2>Tin của tôi</h2>
-<table class="table table-bordered">
-    <tr>
-        <th>Tên sản phẩm</th>
-        <th>Ngày tạo</th>
-        <th>Trạng thái</th>
-    </tr>
-    @foreach (var sp in Model)
-    {
-        <tr>
-            <td>@sp.TenSP</td>
-            <td>@($"{sp.NgayTao:dd/MM/yyyy}")</td>
-            <td>@sp.TrangThai</td>
-        </tr>
-    }
-</table>
+<div class="container my-5">
+    <h3 class="fw-bold mb-4 text-center">
+        <i class="fa-solid fa-clipboard-list text-warning me-2"></i> Tin đăng của tôi
+    </h3>
+
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-body p-0">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-dark text-center">
+                    <tr>
+                        <th style="width: 25%">Tên sản phẩm</th>
+                        <th style="width: 15%">Ngày tạo</th>
+                        <th style="width: 15%">Trạng thái</th>
+                        <th style="width: 10%">Số lượng</th>
+                        <th style="width: 15%">Giá (VNĐ)</th>
+                        <th style="width: 20%">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody class="text-center">
+                    @foreach (var sp in Model)
+                    {
+                        <tr>
+                            <td class="text-start ps-4 fw-semibold">@sp.TenSP</td>
+                            <td>
+                                @(sp.NgayTao.HasValue ? sp.NgayTao.Value.ToString("dd/MM/yyyy") : "")
+                            </td>
+                            <td>
+                                @if (sp.TrangThai == "Chờ duyệt")
+                                {
+                                    <span class="badge bg-warning text-dark px-3 py-2">Chờ duyệt</span>
+                                }
+                                else if (sp.TrangThai == "Đã duyệt")
+                                {
+                                    <span class="badge bg-success px-3 py-2">Đã duyệt</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger px-3 py-2">Bị từ chối</span>
+                                }
+                            </td>
+                            <td>@sp.SoLuong</td>
+                            <td class="text-danger fw-bold">@String.Format("{0:N0}", sp.Gia)</td>
+                            <td>
+                                <a href="@Url.Action("ChiTiet", "SanPham", new { id = sp.MaSP })" class="btn btn-sm btn-outline-primary me-2">
+                                    <i class="fa-solid fa-eye"></i> Xem
+                                </a>
+                                <a href="@Url.Action("ChinhSua", "SanPham", new { id = sp.MaSP })" class="btn btn-sm btn-outline-warning me-2">
+                                    <i class="fa-solid fa-pen-to-square"></i> Sửa
+                                </a>
+                                <a href="@Url.Action("Xoa", "SanPham", new { id = sp.MaSP })" class="btn btn-sm btn-outline-danger"
+                                   onclick="return confirm('Xác nhận xóa sản phẩm này?')">
+                                    <i class="fa-solid fa-trash"></i> Xóa
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

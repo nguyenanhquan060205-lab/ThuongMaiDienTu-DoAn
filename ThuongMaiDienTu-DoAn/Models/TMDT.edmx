@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="TMDTModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+    <Schema Namespace="TMDTModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="CT_GIOHANG">
           <Key>
             <PropertyRef Name="MaGH" />
@@ -64,6 +64,7 @@
           <Property Name="NgayTT" Type="datetime" />
           <Property Name="NgayDat" Type="datetime" />
           <Property Name="TrangThai" Type="nvarchar" MaxLength="20" />
+          <Property Name="DiaChiGiaoHang" Type="nvarchar" MaxLength="200" />
         </EntityType>
         <EntityType Name="KHIEUNAI">
           <Key>
@@ -406,8 +407,7 @@
             <End Role="TINNHAN" EntitySet="TINNHAN" />
           </AssociationSet>
         </EntityContainer>
-      </Schema>
-    </edmx:StorageModels>
+      </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="TMDTModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
@@ -479,6 +479,7 @@
           <Property Name="NgayTT" Type="DateTime" Precision="3" />
           <Property Name="NgayDat" Type="DateTime" Precision="3" />
           <Property Name="TrangThai" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
+          <Property Name="DiaChiGiaoHang" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
           <NavigationProperty Name="CT_HOADON" Relationship="Self.FK__CT_HOADON__MaHD__5CD6CB2B" FromRole="HOADON" ToRole="CT_HOADON" />
           <NavigationProperty Name="NGUOIDUNG" Relationship="Self.FK__HOADON__MaKH__5629CD9C" FromRole="HOADON" ToRole="NGUOIDUNG" />
         </EntityType>
@@ -911,6 +912,7 @@
                 <ScalarProperty Name="NgayTT" ColumnName="NgayTT" />
                 <ScalarProperty Name="NgayDat" ColumnName="NgayDat" />
                 <ScalarProperty Name="TrangThai" ColumnName="TrangThai" />
+                <ScalarProperty Name="DiaChiGiaoHang" ColumnName="DiaChiGiaoHang" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

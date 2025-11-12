@@ -1,8 +1,9 @@
-﻿using ThuongMaiDienTu_DoAn.Filters;
-using ThuongMaiDienTu_DoAn.Models;
+﻿using System;
 using System.Data.Entity;
 using System.Linq;
 using System.Web.Mvc;
+using ThuongMaiDienTu_DoAn.Filters;
+using ThuongMaiDienTu_DoAn.Models;
 
 namespace ThuongMaiDienTu_DoAn.Controllers
 {
@@ -10,6 +11,8 @@ namespace ThuongMaiDienTu_DoAn.Controllers
     public class AdminController : Controller
     {
         private readonly TMDTEntities db = new TMDTEntities();
+
+        // === DASHBOARD ===
         public ActionResult Index()
         {
             ViewBag.TongNguoiDung = db.NGUOIDUNGs.Count();
@@ -18,12 +21,14 @@ namespace ThuongMaiDienTu_DoAn.Controllers
             ViewBag.TinDaDuyet = db.SANPHAMs.Count(sp => sp.TrangThai == "Đã duyệt");
             return View();
         }
+
+        // === DUYỆT TIN / SẢN PHẨM ===
         public ActionResult DuyetTin()
         {
             var list = db.SANPHAMs
+                .Include(s => s.NGUOIDUNG)
                 .OrderByDescending(x => x.NgayTao)
                 .ToList();
-
             return View(list);
         }
 
@@ -37,53 +42,101 @@ namespace ThuongMaiDienTu_DoAn.Controllers
             sp.TrangThai = tt;
             db.SaveChanges();
 
-            TempData["Success"] = $"✅ Đã cập nhật trạng thái sản phẩm **{sp.TenSP}** thành '{tt}'.";
+            TempData["Success"] = $"✅ Đã cập nhật trạng thái sản phẩm **{sp.TenSP}** thành '{tt}'";
             return RedirectToAction("DuyetTin");
         }
+
+        // === QUẢN LÝ NGƯỜI DÙNG ===
         public ActionResult QuanLyNguoiDung()
         {
-            var ds = db.NGUOIDUNGs.ToList();
+            var ds = db.NGUOIDUNGs.OrderByDescending(x => x.NgayTao).ToList();
             return View(ds);
         }
 
-        public ActionResult DanhSachSanPham()
+        // === QUẢN LÝ SẢN PHẨM ===
+        public ActionResult QuanLySanPham()
         {
-            var ds = db.SANPHAMs.Include(x => x.NGUOIDUNG).ToList();
+            var ds = db.SANPHAMs.Include(x => x.NGUOIDUNG)
+                                 .Include(x => x.LOAISANPHAM)
+                                 .OrderByDescending(x => x.NgayTao)
+                                 .ToList();
             return View(ds);
         }
 
+        // === QUẢN LÝ ĐƠN HÀNG ===
         public ActionResult QuanLyDonHang()
         {
-            var ds = db.HOADONs.Include(x => x.NGUOIDUNG).ToList();
-            return View(ds);
+            var donhangs = db.HOADONs
+                .Select(hd => new DonHangC2CViewModel
+                {
+                    MaHD = hd.MaHD,
+                    NguoiMua = hd.NGUOIDUNG.HoTen,
+                    NguoiBan = hd.CT_HOADON
+                                 .Select(ct => ct.SANPHAM.NGUOIDUNG.HoTen)
+                                 .FirstOrDefault() ?? "(Chưa có sản phẩm)",
+                    NgayDat = hd.NgayDat,
+                    TongTien = (decimal)hd.TongTien,
+                    TrangThai = hd.TrangThai
+                })
+                .ToList();
+
+            return View(donhangs);
         }
 
-        public ActionResult QuanLyKhieuNai()
+        // === LOẠI SẢN PHẨM ===
+        public ActionResult QuanLyLoaiSP()
         {
-            var ds = db.KHIEUNAIs.Include(k => k.NGUOIDUNG)
-                                .Include(k => k.SANPHAM)
-                                .OrderByDescending(k => k.MaKN)
-                                .ToList();
-            return View(ds);
+            var loais = db.LOAISANPHAMs.ToList();
+            return View(loais);
         }
 
-        [HttpPost]
-        public ActionResult CapNhatKhieuNai(int id, string tt, string ph)
+            [HttpPost]
+        public ActionResult ThemLoaiSP(string tenLoai)
         {
-            var kn = db.KHIEUNAIs.Find(id);
-            if (kn == null) return HttpNotFound();
+            if (string.IsNullOrWhiteSpace(tenLoai))
+            {
+                TempData["Error"] = "Tên loại không được để trống!";
+                return RedirectToAction("QuanLyLoaiSP");
+            }
 
-            kn.TrangThai = tt;
-            kn.PhanHoi = ph;
+            var loai = new LOAISANPHAM { TenLoai = tenLoai };
+            db.LOAISANPHAMs.Add(loai);
             db.SaveChanges();
 
-            TempData["Success"] = $"✅ Khiếu nại #{id} đã được cập nhật!";
-            return RedirectToAction("QuanLyKhieuNai");
+            TempData["Success"] = "✅ Đã thêm loại sản phẩm mới!";
+            return RedirectToAction("QuanLyLoaiSP");
         }
 
 
+        // === QUẢN LÝ KHIẾU NẠI ===
+        public ActionResult QuanLyKhieuNai()
+        {
+            var dsKhieuNai = db.KHIEUNAIs
+                .Include("NGUOIDUNG")
+                .Include("SANPHAM")
+                .OrderByDescending(k => k.NgayGui)
+                .ToList();
+
+            return View(dsKhieuNai);
+        }
 
 
+        [HttpPost]
+        public ActionResult CapNhatTrangThaiKN(int id, string trangThai)
+        {
+            var user = Session["user"] as NGUOIDUNG;
+            if (user == null || user.VaiTro != "Admin")
+                return new HttpStatusCodeResult(403, "Không có quyền.");
+
+            var kn = db.KHIEUNAIs.Find(id);
+            if (kn == null)
+                return HttpNotFound();
+
+            kn.TrangThai = trangThai;
+            db.SaveChanges();
+
+            return Json(new { ok = true, status = kn.TrangThai });
+        }
 
 
     }

@@ -105,6 +105,12 @@
                             <ul class="dropdown-menu dropdown-menu-end">
                                 <li><a class="dropdown-item" href="@Url.Action("ThongTin","TaiKhoan")"><i class="fa fa-user me-2"></i> Thông tin cá nhân</a></li>
                                 <li><a class="dropdown-item" href="@Url.Action("TaoMoi","SanPham")"><i class="fa fa-user me-2"></i> Đăng bán</a></li>
+                                <li>
+                                    <a class="dropdown-item" href="@Url.Action("Chat", "TinNhan", new { idNguoiDung = user.MaKH })">
+                                        Tin nhắn / Hỗ trợ
+                                    </a>
+                                </li>
+
                                 <li><a class="dropdown-item" href="@Url.Action("DangXuat","TaiKhoan")"><i class="fa fa-sign-out me-2"></i> Đăng xuất</a></li>
                             </ul>
                         </div>

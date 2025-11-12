@@ -10,7 +10,7 @@ namespace ThuongMaiDienTu_DoAn.Filters
         public override void OnActionExecuting(ActionExecutingContext filterContext)
         {
             var user = filterContext.HttpContext.Session["user"] as NGUOIDUNG;
-
+             
             if (user == null || !string.Equals(user.VaiTro, "Admin", StringComparison.OrdinalIgnoreCase))
             {
                 filterContext.Result = new RedirectResult("~/TaiKhoan/DangNhap");

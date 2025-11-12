@@ -35,24 +35,17 @@ namespace ThuongMaiDienTu_DoAn.Controllers
             return View(sp);
         }
 
-        [AuthorizeUser]
         [HttpGet]
         public ActionResult TaoMoi()
         {
-            var u = Session["user"];
-            if (u == null)
+            if (Session["user"] == null)
             {
-                TempData["test"] = "Session null rồi nè!";
-            }
-            else
-            {
-                TempData["test"] = "Session vẫn có user!";
+                return RedirectToAction("DangNhap", "TaiKhoan");
             }
 
             ViewBag.MaLoai = new SelectList(db.LOAISANPHAMs, "MaLoai", "TenLoai");
             return View();
         }
-        [AuthorizeUser]
         [HttpPost]
         public ActionResult TaoMoi(SANPHAM m, IEnumerable<HttpPostedFileBase> files)
         {
@@ -92,8 +85,6 @@ namespace ThuongMaiDienTu_DoAn.Controllers
             TempData["OK"] = "Đăng tin thành công! Chờ admin duyệt.";
             return RedirectToAction("CuaToi");
         }
-
-        [AuthorizeUser]
         public ActionResult CuaToi()
         {
             var u = Session["user"] as NGUOIDUNG;

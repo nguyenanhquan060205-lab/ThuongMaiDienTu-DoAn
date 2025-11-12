@@ -18,7 +18,7 @@
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <MvcBuildViews>false</MvcBuildViews>
     <UseIISExpress>true</UseIISExpress>
-    <Use64BitIISExpress />
+    <Use64BitIISExpress>false</Use64BitIISExpress>
     <IISExpressSSLPort>44310</IISExpressSSLPort>
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
@@ -134,6 +134,7 @@
     <Compile Include="Controllers\GioHangController.cs" />
     <Compile Include="Controllers\HoaDonController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\KhieuNaiController.cs" />
     <Compile Include="Controllers\SanPhamController.cs" />
     <Compile Include="Controllers\TaiKhoanController.cs" />
     <Compile Include="Controllers\TinNhanController.cs" />
@@ -151,6 +152,7 @@
     <Compile Include="Models\DANHGIA.cs">
       <DependentUpon>TMDT.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\DonHangC2CViewModel.cs" />
     <Compile Include="Models\GIOHANG.cs">
       <DependentUpon>TMDT.tt</DependentUpon>
     </Compile>
@@ -193,6 +195,12 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Content\avatars\Default.jpg" />
+    <Content Include="Content\avatars\user_2_638977859542721589.jpg" />
+    <Content Include="Content\avatars\user_2_638977860946692533.jpg" />
+    <Content Include="Content\avatars\user_2_638977861614639752.png" />
+    <Content Include="Content\avatars\user_2_638981289063075224.jpg" />
+    <Content Include="Content\avatars\user_2_638983810631793801.jpg" />
     <Content Include="Content\bootstrap-grid.css" />
     <Content Include="Content\bootstrap-grid.min.css" />
     <Content Include="Content\bootstrap-grid.rtl.css" />
@@ -209,6 +217,19 @@
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\bootstrap.rtl.css" />
     <Content Include="Content\bootstrap.rtl.min.css" />
+    <Content Include="Content\Images\1f73d6ce-3093-4c32-b9a7-1657d55a10ce.jpg" />
+    <Content Include="Content\Images\ai.jpg" />
+    <Content Include="Content\Images\b12e6b26-aada-4352-abcd-0898b0f1c5e8.jpg" />
+    <Content Include="Content\Images\dd327950-c165-4e95-af00-7c90b491b556.jpg" />
+    <Content Include="Content\Images\hoodie.jpg" />
+    <Content Include="Content\Images\iphone13.jpg" />
+    <Content Include="Content\Images\laptrinhc.jpg" />
+    <Content Include="Content\Images\laptrinhcsharp.jpg" />
+    <Content Include="Content\Images\photoshop.jpg" />
+    <Content Include="Content\Images\python.jpg" />
+    <Content Include="Content\Images\s21fe.jpg" />
+    <Content Include="Content\Images\sqlserver.jpg" />
+    <Content Include="Content\Images\xps13.jpg" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
@@ -263,11 +284,9 @@
     <Content Include="Views\DanhGia\_DanhGia.cshtml" />
     <Content Include="Views\GioHang\CartIcon.cshtml" />
     <Content Include="Views\GioHang\Index.cshtml" />
-    <Content Include="Views\Admin\DanhSachSanPham.cshtml" />
     <Content Include="Views\Admin\DoiTrangThai.cshtml" />
     <Content Include="Views\Admin\DuyetTin.cshtml" />
     <Content Include="Views\Admin\Index.cshtml" />
-    <Content Include="Views\Admin\QuanLyDonHang.cshtml" />
     <Content Include="Views\Admin\QuanLyKhieuNai.cshtml" />
     <Content Include="Views\Admin\QuanLyNguoiDung.cshtml" />
     <Content Include="Views\HoaDon\DanhSachDonHang.cshtml" />
@@ -279,11 +298,14 @@
     <Content Include="Views\TaiKhoan\DangKy.cshtml" />
     <Content Include="Views\TaiKhoan\DangNhap.cshtml" />
     <Content Include="Views\TaiKhoan\ThongTin.cshtml" />
+    <Content Include="Views\Admin\QuanLyDonHang.cshtml" />
+    <Content Include="Views\Admin\QuanLyLoaiSP.cshtml" />
+    <Content Include="Views\TinNhan\Chat.cshtml" />
+    <Content Include="Views\TinNhan\Index.cshtml" />
+    <Content Include="Views\KhieuNai\TaoKhieuNai.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Content\Images\" />
-    <Folder Include="Views\TinNhan\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap.rtl.min.css.map" />

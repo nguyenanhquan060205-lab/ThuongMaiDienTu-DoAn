@@ -1,0 +1,175 @@
+﻿@model IEnumerable<ThuongMaiDienTu_DoAn.Models.NGUOIDUNG>
+
+@{
+    ViewBag.Title = "Tin nhắn";
+
+    // Nếu người đang đăng nhập là admin → dùng layout dashboard
+    var currentUser = Session["user"] as ThuongMaiDienTu_DoAn.Models.NGUOIDUNG;
+    if (currentUser != null && currentUser.VaiTro == "Admin")
+    {
+        Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    }
+    else
+    {
+        Layout = "~/Views/Shared/_Layout.cshtml";
+    }
+}
+
+
+<style>
+    .chat-container {
+        display: flex;
+        width: 85%;
+        margin: 40px auto;
+        height: 70vh;
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    .user-list {
+        width: 30%;
+        background: #1f1f2e;
+        color: white;
+        border-radius: 10px 0 0 10px;
+        overflow-y: auto;
+    }
+
+    .user-item {
+        padding: 15px;
+        border-bottom: 1px solid #333;
+        cursor: pointer;
+        transition: .2s;
+    }
+
+        .user-item:hover {
+            background: #2d2d44;
+        }
+
+    .chat-box {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .chat-header {
+        background: #0078ff;
+        color: #fff;
+        padding: 15px;
+        border-radius: 0 10px 0 0;
+    }
+
+    .chat-body {
+        flex: 1;
+        background: #f6f6f6;
+        padding: 15px;
+        overflow-y: auto;
+    }
+
+    .msg {
+        margin-bottom: 10px;
+        display: flex;
+    }
+
+        .msg.me {
+            justify-content: flex-end;
+        }
+
+        .msg .bubble {
+            padding: 10px 15px;
+            border-radius: 15px;
+            max-width: 60%;
+            word-wrap: break-word;
+        }
+
+        .msg.me .bubble {
+            background: #0078ff;
+            color: white;
+        }
+
+        .msg.them .bubble {
+            background: #e4e6eb;
+        }
+
+    .chat-input {
+        display: flex;
+        padding: 10px;
+        background: white;
+        border-top: 1px solid #ccc;
+    }
+</style>
+
+<!-- hidden IDs -->
+<input type="hidden" id="NguoiGuiID" value="@ViewBag.NguoiGuiID" />
+<input type="hidden" id="NguoiNhanID" value="@ViewBag.NguoiNhanID" />
+
+<div class="chat-container">
+    <div class="user-list">
+        @foreach (var u in Model)
+        {
+            <div class="user-item" onclick="window.location='@Url.Action("Chat", "TinNhan", new { idNguoiNhan = u.MaKH })'">
+                <b>@u.HoTen</b><br />
+                <small>@u.Email</small>
+            </div>
+        }
+    </div>
+
+    <div class="chat-box">
+        <div class="chat-header"><b>@ViewBag.NguoiNhanTen</b></div>
+        <div id="messages" class="chat-body"></div>
+        <div class="chat-input">
+            <input id="txtMsg" type="text" class="form-control me-2" placeholder="Nhập tin nhắn...">
+            <button id="btnSend" class="btn btn-primary">Gửi</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script>
+    function loadTinNhan() {
+        const idGui = $('#NguoiGuiID').val();
+        const idNhan = $('#NguoiNhanID').val();
+        if (idNhan == 0 || !idNhan) return;
+
+        $.getJSON('/TinNhan/LoadTinNhan', { idNguoiGui: idGui, idNguoiNhan: idNhan }, function (data) {
+            console.log("Loaded messages:", data); // ✅ debug xem có tin nào không
+            let html = "";
+            $.each(data, function (i, m) {
+                html += `<div class="msg ${(m.NguoiGui == idGui) ? 'me' : 'them'}">
+                        <div class="bubble">${m.NoiDung}</div>
+                     </div>`;
+            });
+            $("#messages").html(html);
+            $("#messages").scrollTop($("#messages")[0].scrollHeight);
+        }).fail(function (err) {
+            console.error("LoadTinNhan error:", err);
+        });
+    }
+
+    $("#btnSend").click(function () {
+        const idGui = $('#NguoiGuiID').val();
+        const idNhan = $('#NguoiNhanID').val();
+        const msg = $("#txtMsg").val().trim();
+
+        if (!msg || idNhan == 0) return;
+
+        $.post('/TinNhan/GuiTinNhan', { nguoiGui: idGui, nguoiNhan: idNhan, noiDung: msg }, function () {
+            $("#txtMsg").val('');
+            loadTinNhan(); // reload ngay khi gửi
+        }).fail(function (err) {
+            console.error("GuiTinNhan error:", err);
+        });
+    });
+
+    // ✅ Enter để gửi
+    $('#txtMsg').keypress(function (e) {
+        if (e.which === 13) {
+            $('#btnSend').click();
+            return false;
+        }
+    });
+
+    // ✅ Auto refresh mỗi 2s
+    setInterval(loadTinNhan, 2000);
+    loadTinNhan();
+</script>

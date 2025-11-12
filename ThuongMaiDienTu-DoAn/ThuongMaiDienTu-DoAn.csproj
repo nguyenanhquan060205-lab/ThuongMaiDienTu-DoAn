@@ -138,7 +138,6 @@
     <Compile Include="Controllers\TaiKhoanController.cs" />
     <Compile Include="Controllers\TinNhanController.cs" />
     <Compile Include="Filters\AuthorizeAdmin.cs" />
-    <Compile Include="Filters\AuthorizeUser.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -151,6 +150,7 @@
     <Compile Include="Models\DANHGIA.cs">
       <DependentUpon>TMDT.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\DanhGiaViewModel.cs" />
     <Compile Include="Models\GIOHANG.cs">
       <DependentUpon>TMDT.tt</DependentUpon>
     </Compile>
@@ -169,9 +169,11 @@
     <Compile Include="Models\NGUOIDUNG.cs">
       <DependentUpon>TMDT.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\LichSuViewModel.cs" />
     <Compile Include="Models\SANPHAM.cs">
       <DependentUpon>TMDT.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\SanPhamDaBanViewModel.cs" />
     <Compile Include="Models\TINNHAN.cs">
       <DependentUpon>TMDT.tt</DependentUpon>
     </Compile>
@@ -279,6 +281,11 @@
     <Content Include="Views\TaiKhoan\DangKy.cshtml" />
     <Content Include="Views\TaiKhoan\DangNhap.cshtml" />
     <Content Include="Views\TaiKhoan\ThongTin.cshtml" />
+    <Content Include="Views\TaiKhoan\LichSu.cshtml" />
+    <Content Include="Views\TaiKhoan\CT_LichSu.cshtml" />
+    <Content Include="Views\TaiKhoan\SuaDonHang.cshtml" />
+    <Content Include="Views\SanPham\SanPhamDaBan.cshtml" />
+    <Content Include="Views\TaiKhoan\DanhGia.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

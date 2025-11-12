@@ -1,0 +1,47 @@
+﻿@model IEnumerable<ThuongMaiDienTu_DoAn.Models.SanPhamDaBanViewModel>
+
+<h2>Sản phẩm của bạn đã được bán</h2>
+
+@if (TempData["ThongBao"] != null)
+{
+    <div class="alert alert-info">@TempData["ThongBao"]</div>
+}
+
+<table class="table table-bordered">
+    <tr>
+        <th>Tên sản phẩm</th>
+        <th>Giá bán</th>
+        <th>Số lượng</th>
+        <th>Thành tiền</th>
+        <th>Người mua</th>
+        <th>Ngày mua</th>
+        <th>Trạng thái</th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.TenSP</td>
+            <td>@string.Format("{0:N0} đ", item.GiaBan)</td>
+            <td>@item.SoLuongBan</td>
+            <td>@string.Format("{0:N0} đ", item.ThanhTien)</td>
+            <td>@item.NguoiMua</td>
+            <td>@item.NgayMua.ToString("dd/MM/yyyy")</td>
+            <td>@item.TrangThai</td>
+            <td>
+                @if (item.TrangThai == "Đang chờ xử lý")
+                {
+                    <a class="btn btn-success btn-sm"
+                       href="@Url.Action("HoanThanh", "SanPham", new { MaHD = item.MaHD })">
+                        Hoàn thành
+                    </a>
+                }
+                else
+                {
+                    <span class="text-muted">—</span>
+                }
+            </td>
+        </tr>
+    }
+</table>

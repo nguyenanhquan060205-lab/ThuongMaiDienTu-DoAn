@@ -2,6 +2,8 @@
 @{
     ViewBag.Title = "Chi tiết sản phẩm";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    double trungBinh = ViewBag.TrungBinhDanhGia != null ? Convert.ToDouble(ViewBag.TrungBinhDanhGia) : 0;
+    int tongDanhGia = ViewBag.TongDanhGia != null ? (int)ViewBag.TongDanhGia : 0;
 }
 
 <div class="container mt-5">
@@ -31,6 +33,21 @@
                 <span class="badge @(Model.TrangThai == "Đã bán" ? "bg-danger" : Model.TrangThai == "Đã duyệt" ? "bg-success" : "bg-secondary")">
                     @Model.TrangThai
                 </span>
+            </p>
+            <p>
+                <b>Đánh giá:</b>
+                @for (int i = 1; i <= 5; i++)
+                {
+                    if (i <= Math.Round(trungBinh))
+                    {
+                        <i class="bi bi-star-fill text-warning"></i>
+                    }
+                    else
+                    {
+                        <i class="bi bi-star text-warning"></i>
+                    }
+                }
+                <span class="ms-2">(@tongDanhGia đánh giá)</span>
             </p>
 
             <!-- Thông báo (nếu có) -->

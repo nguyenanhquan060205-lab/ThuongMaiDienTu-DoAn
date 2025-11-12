@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="TMDTModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+    <Schema Namespace="TMDTModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="CT_GIOHANG">
           <Key>
             <PropertyRef Name="MaGH" />
@@ -64,6 +64,7 @@
           <Property Name="NgayTT" Type="datetime" />
           <Property Name="NgayDat" Type="datetime" />
           <Property Name="TrangThai" Type="nvarchar" MaxLength="20" />
+          <Property Name="DiaChiGiaoHang" Type="nvarchar" MaxLength="200" />
         </EntityType>
         <EntityType Name="KHIEUNAI">
           <Key>
@@ -293,7 +294,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__TINNHAN__MaSP__70DDC3D8">
+        <Association Name="FK__TINNHAN__MaSP__71D1E811">
           <End Role="SANPHAM" Type="Self.SANPHAM" Multiplicity="0..1" />
           <End Role="TINNHAN" Type="Self.TINNHAN" Multiplicity="*" />
           <ReferentialConstraint>
@@ -305,7 +306,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__TINNHAN__NguoiGu__6E01572D">
+        <Association Name="FK__TINNHAN__NguoiGu__6EF57B66">
           <End Role="NGUOIDUNG" Type="Self.NGUOIDUNG" Multiplicity="0..1" />
           <End Role="TINNHAN" Type="Self.TINNHAN" Multiplicity="*" />
           <ReferentialConstraint>
@@ -317,7 +318,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__TINNHAN__NguoiNh__6EF57B66">
+        <Association Name="FK__TINNHAN__NguoiNh__6FE99F9F">
           <End Role="NGUOIDUNG" Type="Self.NGUOIDUNG" Multiplicity="0..1" />
           <End Role="TINNHAN" Type="Self.TINNHAN" Multiplicity="*" />
           <ReferentialConstraint>
@@ -393,21 +394,20 @@
             <End Role="LOAISANPHAM" EntitySet="LOAISANPHAM" />
             <End Role="SANPHAM" EntitySet="SANPHAM" />
           </AssociationSet>
-          <AssociationSet Name="FK__TINNHAN__MaSP__70DDC3D8" Association="Self.FK__TINNHAN__MaSP__70DDC3D8">
+          <AssociationSet Name="FK__TINNHAN__MaSP__71D1E811" Association="Self.FK__TINNHAN__MaSP__71D1E811">
             <End Role="SANPHAM" EntitySet="SANPHAM" />
             <End Role="TINNHAN" EntitySet="TINNHAN" />
           </AssociationSet>
-          <AssociationSet Name="FK__TINNHAN__NguoiGu__6E01572D" Association="Self.FK__TINNHAN__NguoiGu__6E01572D">
+          <AssociationSet Name="FK__TINNHAN__NguoiGu__6EF57B66" Association="Self.FK__TINNHAN__NguoiGu__6EF57B66">
             <End Role="NGUOIDUNG" EntitySet="NGUOIDUNG" />
             <End Role="TINNHAN" EntitySet="TINNHAN" />
           </AssociationSet>
-          <AssociationSet Name="FK__TINNHAN__NguoiNh__6EF57B66" Association="Self.FK__TINNHAN__NguoiNh__6EF57B66">
+          <AssociationSet Name="FK__TINNHAN__NguoiNh__6FE99F9F" Association="Self.FK__TINNHAN__NguoiNh__6FE99F9F">
             <End Role="NGUOIDUNG" EntitySet="NGUOIDUNG" />
             <End Role="TINNHAN" EntitySet="TINNHAN" />
           </AssociationSet>
         </EntityContainer>
-      </Schema>
-    </edmx:StorageModels>
+      </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="TMDTModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
@@ -481,6 +481,7 @@
           <Property Name="TrangThai" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
           <NavigationProperty Name="CT_HOADON" Relationship="Self.FK__CT_HOADON__MaHD__5CD6CB2B" FromRole="HOADON" ToRole="CT_HOADON" />
           <NavigationProperty Name="NGUOIDUNG" Relationship="Self.FK__HOADON__MaKH__5629CD9C" FromRole="HOADON" ToRole="NGUOIDUNG" />
+          <Property Name="DiaChiGiaoHang" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
         </EntityType>
         <EntityType Name="KHIEUNAI">
           <Key>
@@ -904,6 +905,7 @@
           <EntitySetMapping Name="HOADONs">
             <EntityTypeMapping TypeName="TMDTModel.HOADON">
               <MappingFragment StoreEntitySet="HOADON">
+                <ScalarProperty Name="DiaChiGiaoHang" ColumnName="DiaChiGiaoHang" />
                 <ScalarProperty Name="MaHD" ColumnName="MaHD" />
                 <ScalarProperty Name="MaKH" ColumnName="MaKH" />
                 <ScalarProperty Name="TongTien" ColumnName="TongTien" />

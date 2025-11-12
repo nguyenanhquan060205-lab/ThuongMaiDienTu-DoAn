@@ -1,0 +1,36 @@
+﻿@model IEnumerable<ThuongMaiDienTu_DoAn.Models.DanhGiaViewModel>
+@{
+    ViewBag.Title = "Đánh giá sản phẩm";
+}
+
+<h2>Đánh giá sản phẩm</h2>
+
+@foreach (var sp in Model)
+{
+    <div class="card mb-3 p-3">
+        <h5>@sp.TenSP</h5>
+        <form asp-action="DanhGia" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="maHD" value="@ViewBag.MaHD" />
+            <input type="hidden" name="maSP" value="@sp.MaSP" />
+
+            <div class="mb-2">
+                <label>Số sao:</label>
+                <select name="soSao" class="form-select w-auto">
+                    <option value="1">1 ⭐</option>
+                    <option value="2">2 ⭐</option>
+                    <option value="3">3 ⭐</option>
+                    <option value="4">4 ⭐</option>
+                    <option value="5">5 ⭐</option>
+                </select>
+            </div>
+
+            <div class="mb-2">
+                <label>Nội dung:</label>
+                <textarea name="noiDung" class="form-control" rows="3"></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-success">Gửi đánh giá</button>
+        </form>
+    </div>
+}

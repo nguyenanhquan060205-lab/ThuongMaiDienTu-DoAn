@@ -51,7 +51,7 @@ namespace ThuongMaiDienTu_DoAn.Controllers
             return View(ds);
         }
 
-        // ------------------- ➕ THÊM SẢN PHẨM -------------------
+        //  THÊM SẢN PHẨM  
         public ActionResult Them(int id)
         {
             var user = Session["user"] as NGUOIDUNG;
@@ -61,14 +61,14 @@ namespace ThuongMaiDienTu_DoAn.Controllers
             if (sp == null || sp.TrangThai != "Đã duyệt")
                 return RedirectToAction("Index", "SanPham");
 
-            // ❌ Không cho người bán tự mua hàng của chính mình
+            //  Không cho người bán tự mua hàng của chính mình
             if (sp.MaKH == user.MaKH)
             {
                 TempData["CartError"] = "Bạn không thể mua sản phẩm của chính mình!";
                 return RedirectToAction("ChiTiet", "SanPham", new { id });
             }
 
-            // ⚠️ Kiểm tra xem có ai khác đã mua (đơn thật)
+            //  Kiểm tra xem có ai khác đã mua (đơn thật)
             bool daBan = db.CT_HOADON.Any(x => x.MaSP == id &&
                 (x.HOADON.TrangThai == "Đã thanh toán" || x.HOADON.TrangThai == "Đang vận chuyển"));
             if (daBan || sp.SoLuong <= 0)
@@ -77,7 +77,7 @@ namespace ThuongMaiDienTu_DoAn.Controllers
                 return RedirectToAction("Index", "SanPham");
             }
 
-            // ✅ Lấy giỏ hàng người dùng
+            //  Lấy giỏ hàng người dùng
             var gio = db.GIOHANGs.FirstOrDefault(g => g.MaKH == user.MaKH);
             if (gio == null)
             {
@@ -86,7 +86,7 @@ namespace ThuongMaiDienTu_DoAn.Controllers
                 db.SaveChanges();
             }
 
-            // ✅ Thêm sản phẩm vào chi tiết giỏ hàng
+            //   Thêm sản phẩm vào chi tiết giỏ hàng
             var ct = db.CT_GIOHANG.FirstOrDefault(c => c.MaGH == gio.MaGH && c.MaSP == id);
             if (ct == null)
                 db.CT_GIOHANG.Add(new CT_GIOHANG { MaGH = gio.MaGH, MaSP = id, SoLuong = 1, ThanhTien = sp.Gia });
@@ -95,7 +95,7 @@ namespace ThuongMaiDienTu_DoAn.Controllers
 
             db.SaveChanges();
 
-            // 🔄 Cập nhật lại số lượng giỏ hàng trong session
+            //  Cập nhật lại số lượng giỏ hàng trong session
             var gioUpdate = db.GIOHANGs.FirstOrDefault(g => g.MaKH == user.MaKH);
             Session["CartCount"] = gioUpdate?.TongSoLuong ?? 0;
 
@@ -103,7 +103,7 @@ namespace ThuongMaiDienTu_DoAn.Controllers
             return RedirectToAction("Index");
         }
 
-        // ------------------- 🔼 TĂNG SỐ LƯỢNG -------------------
+        // TĂNG SỐ LƯỢNG 
         public ActionResult Tang(int id)
         {
             var user = Session["user"] as NGUOIDUNG;
@@ -133,7 +133,7 @@ namespace ThuongMaiDienTu_DoAn.Controllers
             return RedirectToAction("Index");
         }
 
-        // ------------------- 🔽 GIẢM SỐ LƯỢNG -------------------
+        //   GIẢM SỐ LƯỢNG 
         public ActionResult Giam(int id)
         {
             var user = Session["user"] as NGUOIDUNG;
@@ -162,7 +162,7 @@ namespace ThuongMaiDienTu_DoAn.Controllers
             return RedirectToAction("Index");
         }
 
-        // ------------------- ❌ XOÁ SẢN PHẨM -------------------
+        // XOÁ SẢN PHẨM 
         public ActionResult Xoa(int id)
         {
             var user = Session["user"] as NGUOIDUNG;

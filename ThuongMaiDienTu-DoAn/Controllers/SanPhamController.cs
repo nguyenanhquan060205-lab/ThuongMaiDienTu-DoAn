@@ -1,16 +1,18 @@
-﻿using ThuongMaiDienTu_DoAn.Filters;
-using ThuongMaiDienTu_DoAn.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using ThuongMaiDienTu_DoAn.Filters;
+using ThuongMaiDienTu_DoAn.Models;
 
 namespace ThuongMaiDienTu_DoAn.Controllers
 {
     public class SanPhamController : Controller
     {
         private readonly TMDTEntities db = new TMDTEntities();
+
 
         public ActionResult Index(string q, int? maloai)
         {
@@ -23,8 +25,12 @@ namespace ThuongMaiDienTu_DoAn.Controllers
                 sp = sp.Where(s => s.MaLoai == maloai.Value);
 
             ViewBag.LoaiSP = db.LOAISANPHAMs.ToList();
+            ViewBag.TuKhoa = q;
+            ViewBag.LoaiDangChon = maloai;
+
             return View(sp.OrderByDescending(x => x.NgayTao).ToList());
         }
+
 
         public ActionResult ChiTiet(int id)
         {
@@ -32,33 +38,41 @@ namespace ThuongMaiDienTu_DoAn.Controllers
             if (sp == null || sp.TrangThai == "Ẩn")
                 return HttpNotFound();
 
-            // Load danh sách đánh giá
             var danhGia = db.DANHGIAs
                             .Where(d => d.MaSP == id)
                             .ToList();
 
             ViewBag.TongDanhGia = danhGia.Count();
             ViewBag.TrungBinhDanhGia = danhGia.Any() ? danhGia.Average(d => d.SoSao) : 0;
+            ViewBag.AnhChiTiet = db.HINHANHSPs
+                                   .Where(a => a.Masp == id && a.AnhBia == false)
+                                   .ToList();
+
+            var spLienQuan = db.SANPHAMs
+                                .Where(x => x.MaLoai == sp.MaLoai
+                                         && x.MaSP != sp.MaSP
+                                         && x.TrangThai == "Đã duyệt")
+                                .OrderByDescending(x => x.NgayTao)
+                                .Take(4)
+                                .ToList();
+
+            ViewBag.SPLienQuan = spLienQuan;
 
             return View(sp);
         }
+
 
         [HttpGet]
         public ActionResult TaoMoi()
         {
             if (Session["user"] == null)
             {
-                TempData["test"] = "Session null rồi nè!";
-            }
-            else
-            {
-                TempData["test"] = "Session vẫn có user!";
+                return RedirectToAction("DangNhap", "TaiKhoan");
             }
 
             ViewBag.MaLoai = new SelectList(db.LOAISANPHAMs, "MaLoai", "TenLoai");
             return View();
         }
-        [AuthorizeUser]
         [HttpPost]
         public ActionResult TaoMoi(SANPHAM m, IEnumerable<HttpPostedFileBase> files)
         {
@@ -66,40 +80,67 @@ namespace ThuongMaiDienTu_DoAn.Controllers
             if (u == null)
                 return RedirectToAction("DangNhap", "TaiKhoan");
 
+            // GÁN THÔNG TIN SẢN PHẨM
             m.MaKH = u.MaKH;
             m.NgayTao = DateTime.Now;
             m.TrangThai = "Chờ duyệt";
 
+            // LƯU SẢN PHẨM TRƯỚC
             db.SANPHAMs.Add(m);
             db.SaveChanges();
- 
-            if (files != null)
-            {
-                int i = 0;
-                foreach (var f in files)
-                {
-                    if (f != null && f.ContentLength > 0)
-                    {
-                        var name = Guid.NewGuid() + System.IO.Path.GetExtension(f.FileName);
-                        var path = Server.MapPath("~/Content/Images/" + name);
-                        f.SaveAs(path);
 
-                        db.HINHANHSPs.Add(new HINHANHSP
-                        {
-                            Masp = m.MaSP,
-                            URLAnh = name,
-                            AnhBia = (i++ == 0)
-                        });
-                    }
+            // XỬ LÝ ẢNH
+            if (files != null && files.Any(f => f != null && f.ContentLength > 0))
+            {
+                bool firstImage = true;
+
+                foreach (var file in files)
+                {
+                    if (file == null || file.ContentLength == 0)
+                        continue;
+
+                    // Kiểm tra định dạng file ảnh
+                    string ext = Path.GetExtension(file.FileName).ToLower();
+                    string[] allow = { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
+
+                    if (!allow.Contains(ext))
+                        continue;
+
+                    // Tạo tên file random
+                    string fileName = Guid.NewGuid().ToString() + ext;
+                    string savePath = Path.Combine(Server.MapPath("~/Content/Images/"), fileName);
+
+                    file.SaveAs(savePath);
+
+                    // Thêm record vào DB
+                    db.HINHANHSPs.Add(new HINHANHSP
+                    {
+                        Masp = m.MaSP,
+                        URLAnh = fileName,
+                        AnhBia = firstImage // ảnh đầu tiên là ảnh bìa
+                    });
+
+                    firstImage = false;
                 }
+
+                db.SaveChanges();
+            }
+            else
+            {
+                // KHÔNG CÓ ẢNH NÀO → TẠO ẢNH MẶC ĐỊNH
+                db.HINHANHSPs.Add(new HINHANHSP
+                {
+                    Masp = m.MaSP,
+                    URLAnh = "noimage.jpg",
+                    AnhBia = true
+                });
                 db.SaveChanges();
             }
 
-            TempData["OK"] = "Đăng tin thành công! Chờ admin duyệt.";
+            TempData["OK"] = "🎉 Đăng tin thành công! Tin của bạn đang chờ admin duyệt.";
             return RedirectToAction("CuaToi");
         }
 
-        [AuthorizeUser]
         public ActionResult CuaToi()
         {
             var u = Session["user"] as NGUOIDUNG;

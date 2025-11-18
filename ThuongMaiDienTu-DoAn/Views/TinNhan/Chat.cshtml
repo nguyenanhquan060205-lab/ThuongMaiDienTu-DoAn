@@ -8,6 +8,7 @@
     if (currentUser != null && currentUser.VaiTro == "Admin")
     {
         Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+        ViewBag.Title = "Dashboard quản trị";
     }
     else
     {
@@ -17,35 +18,42 @@
 
 
 <style>
+    /* ====================== LAYOUT ===================== */
     .chat-container {
         display: flex;
         width: 85%;
         margin: 40px auto;
-        height: 70vh;
+        height: 72vh;
+        border-radius: 12px;
         background: #fff;
-        border-radius: 10px;
-        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 12px rgba(0,0,0,.1);
     }
 
+    /* ====================== SIDEBAR ===================== */
     .user-list {
-        width: 30%;
-        background: #1f1f2e;
-        color: white;
-        border-radius: 10px 0 0 10px;
+        width: 28%;
+        background: #1d2033;
+        color: #fff;
+        border-radius: 12px 0 0 12px;
         overflow-y: auto;
     }
 
     .user-item {
         padding: 15px;
-        border-bottom: 1px solid #333;
+        border-bottom: 1px solid #2c2e43;
         cursor: pointer;
         transition: .2s;
     }
 
         .user-item:hover {
-            background: #2d2d44;
+            background: #313553;
         }
 
+        .user-item.active {
+            background: #3d4163;
+        }
+
+    /* ====================== CHAT ===================== */
     .chat-box {
         flex: 1;
         display: flex;
@@ -53,123 +61,263 @@
     }
 
     .chat-header {
+        padding: 15px 20px;
         background: #0078ff;
         color: #fff;
-        padding: 15px;
-        border-radius: 0 10px 0 0;
+        font-weight: bold;
+        border-radius: 0 12px 0 0;
     }
 
+    /* BODY */
     .chat-body {
         flex: 1;
-        background: #f6f6f6;
-        padding: 15px;
+        padding: 20px;
         overflow-y: auto;
+        background: #f1f3f7;
     }
 
+    /* ====================== MESSAGE BUBBLE ===================== */
     .msg {
-        margin-bottom: 10px;
         display: flex;
+        margin-bottom: 18px;
+        align-items: flex-end;
     }
 
-        .msg.me {
-            justify-content: flex-end;
+        /* Avatar */
+        .msg img.avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            object-fit: cover;
         }
 
-        .msg .bubble {
-            padding: 10px 15px;
-            border-radius: 15px;
-            max-width: 60%;
-            word-wrap: break-word;
-        }
+    .bubble {
+        padding: 10px 16px;
+        max-width: 60%;
+        margin: 0 8px;
+        border-radius: 20px;
+        line-height: 1.4;
+        font-size: 14px;
+    }
+
+    /* Me (right) */
+    .msg.me {
+        justify-content: flex-end;
+    }
 
         .msg.me .bubble {
             background: #0078ff;
             color: white;
+            border-bottom-right-radius: 5px;
         }
+
+        .msg.me img.avatar {
+            margin-left: 6px;
+        }
+
+    /* Them (left) */
+    .msg.them {
+        justify-content: flex-start;
+    }
 
         .msg.them .bubble {
-            background: #e4e6eb;
+            background: #e7e9ee;
+            color: #222;
+            border-bottom-left-radius: 5px;
         }
 
-    .chat-input {
-        display: flex;
-        padding: 10px;
-        background: white;
-        border-top: 1px solid #ccc;
+        .msg.them img.avatar {
+            margin-right: 6px;
+        }
+
+    /* Time */
+    .bubble-time {
+        font-size: 11px;
+        opacity: 0.55;
+        margin-top: 3px;
     }
+ 
+    .chat-input {
+        padding: 12px 20px;
+        background: #ffffff;
+        border-top: 1px solid #ddd;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border-radius: 0 0 12px 0;
+    }
+
+        .chat-input input {
+            flex: 1;
+            border-radius: 12px;
+            border: 1px solid #ccc;
+            padding: 12px 16px;
+            font-size: 14px;
+        }
+
+        .chat-input button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 22px;
+            font-weight: 600;
+            border-radius: 12px;
+            transition: 0.2s;
+        }
+
+            .chat-input button:hover {
+                background: #0066d6;
+                transform: scale(1.05);
+            }
+
+            .chat-input button:active {
+                transform: scale(0.98);
+            }
 </style>
 
-<!-- hidden IDs -->
+<h2 class="fw-bold text-primary mb-3 px-4 mt-4">
+    <i class="bi bi-receipt-cutoff"></i> Tin Nhắn
+</h2>
+ 
 <input type="hidden" id="NguoiGuiID" value="@ViewBag.NguoiGuiID" />
 <input type="hidden" id="NguoiNhanID" value="@ViewBag.NguoiNhanID" />
 
 <div class="chat-container">
+
+ 
     <div class="user-list">
         @foreach (var u in Model)
         {
-            <div class="user-item" onclick="window.location='@Url.Action("Chat", "TinNhan", new { idNguoiNhan = u.MaKH })'">
+            <div class="user-item @(u.MaKH == ViewBag.NguoiNhanID ? "active" : "")"
+                 onclick="location.href='@Url.Action("Chat", "TinNhan", new { idNguoiNhan = u.MaKH })'">
                 <b>@u.HoTen</b><br />
-                <small>@u.Email</small>
             </div>
         }
     </div>
 
+ 
     <div class="chat-box">
-        <div class="chat-header"><b>@ViewBag.NguoiNhanTen</b></div>
+
+        <div class="chat-header">@ViewBag.NguoiNhanTen</div>
+
         <div id="messages" class="chat-body"></div>
-        <div class="chat-input">
-            <input id="txtMsg" type="text" class="form-control me-2" placeholder="Nhập tin nhắn...">
-            <button id="btnSend" class="btn btn-primary">Gửi</button>
-        </div>
+
+        @if (ViewBag.NguoiNhanID != 0)
+        {
+            <div class="chat-input">
+                <input id="txtMsg" type="text" class="form-control me-2" placeholder="Nhập tin nhắn...">
+                <button id="btnSend" class="btn btn-primary">Gửi</button>
+            </div>
+        }
     </div>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
 <script>
+
+    let autoScroll = true;
+
     function loadTinNhan() {
         const idGui = $('#NguoiGuiID').val();
         const idNhan = $('#NguoiNhanID').val();
-        if (idNhan == 0 || !idNhan) return;
+        if (idNhan == 0) return;
 
-        $.getJSON('/TinNhan/LoadTinNhan', { idNguoiGui: idGui, idNguoiNhan: idNhan }, function (data) {
-            console.log("Loaded messages:", data); // ✅ debug xem có tin nào không
-            let html = "";
-            $.each(data, function (i, m) {
-                html += `<div class="msg ${(m.NguoiGui == idGui) ? 'me' : 'them'}">
-                        <div class="bubble">${m.NoiDung}</div>
-                     </div>`;
+        $.getJSON('/TinNhan/LoadTinNhan',
+            { idNguoiGui: idGui, idNguoiNhan: idNhan },
+            function (data) {
+
+                let html = "";
+                let lastMyMsgIndex = -1;
+                let lastMyMsgDaDoc = false;
+
+                $.each(data, function (i, m) {
+
+                    let isMe = m.NguoiGui == idGui;
+
+ 
+                    if (isMe) {
+                        lastMyMsgIndex = i;
+                        lastMyMsgDaDoc = m.DaDoc;
+                    }
+
+                    html += `
+                    <div class="msg ${isMe ? 'me' : 'them'}">
+
+                        ${!isMe ? `<img class="avatar" src="/Content/Avatars/${m.AvatarGui}">` : ''}
+
+                        <div class="bubble">
+                            ${m.NoiDung}
+                            <div class="bubble-time">${m.Gio}</div>
+                        </div>
+
+                        ${isMe ? `<img class="avatar" src="/Content/Avatars/${m.AvatarGui}">` : ''}
+                    </div>`;
+                });
+
+                $("#messages").html(html);
+ 
+
+ 
+ 
+                if (lastMyMsgIndex >= 0 && lastMyMsgDaDoc) {
+                    let msgDivs = $("#messages .msg.me");
+                    $(msgDivs[msgDivs.length - 1]).find('.bubble').append(
+                        `<div class="seen-status" 
+                             style="font-size:11px;color:rgba(255,255,255,0.85);margin-top:3px;">
+                            Đã xem
+                         </div>`
+                    );
+                    
+                }
+
+           
+                if (autoScroll) {
+                    const msgBox = $("#messages")[0];
+                    msgBox.scrollTop = msgBox.scrollHeight;
+                }
             });
-            $("#messages").html(html);
-            $("#messages").scrollTop($("#messages")[0].scrollHeight);
-        }).fail(function (err) {
-            console.error("LoadTinNhan error:", err);
-        });
     }
 
+ 
+    $("#messages").on("scroll", function () {
+        const el = $(this)[0];
+
+ 
+        if (el.scrollTop + el.clientHeight < el.scrollHeight - 50) {
+            autoScroll = false;
+        } else {
+            autoScroll = true;
+        }
+    });
+
+ 
     $("#btnSend").click(function () {
         const idGui = $('#NguoiGuiID').val();
         const idNhan = $('#NguoiNhanID').val();
         const msg = $("#txtMsg").val().trim();
 
-        if (!msg || idNhan == 0) return;
+        if (!msg) return;
 
-        $.post('/TinNhan/GuiTinNhan', { nguoiGui: idGui, nguoiNhan: idNhan, noiDung: msg }, function () {
-            $("#txtMsg").val('');
-            loadTinNhan(); // reload ngay khi gửi
-        }).fail(function (err) {
-            console.error("GuiTinNhan error:", err);
-        });
+        $.post('/TinNhan/GuiTinNhan',
+            { nguoiGui: idGui, nguoiNhan: idNhan, noiDung: msg },
+            function () {
+                $("#txtMsg").val('');
+                autoScroll = true;  
+                loadTinNhan();
+            });
     });
 
-    // ✅ Enter để gửi
+ 
     $('#txtMsg').keypress(function (e) {
         if (e.which === 13) {
-            $('#btnSend').click();
+            $("#btnSend").click();
             return false;
         }
     });
 
-    // ✅ Auto refresh mỗi 2s
-    setInterval(loadTinNhan, 2000);
+ 
+    setInterval(loadTinNhan, 1800);
     loadTinNhan();
+
 </script>

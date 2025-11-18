@@ -193,7 +193,8 @@ VALUES
 (N'Máy tính & Laptop'),
 (N'Thời trang'),
 (N'Đồ gia dụng'),
-(N'Phụ kiện công nghệ');
+(N'Phụ kiện công nghệ'),
+(N'Khác');
 GO
 
 

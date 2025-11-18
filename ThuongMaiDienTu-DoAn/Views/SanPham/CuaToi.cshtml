@@ -65,23 +65,3 @@
         </div>
     </div>
 </div>
-<h2>Bài đăng của tôi</h2>
-<table class="table table-bordered">
-    <tr>
-        <th>Tên sản phẩm</th>
-        <th>Ngày tạo</th>
-        <th>Trạng thái</th>
-        <th>Số lượng</th>
-        <th>Giá bán</th>
-    </tr>
-    @foreach (var sp in Model)
-    {
-        <tr>
-            <td>@sp.TenSP</td>
-            <td>@($"{sp.NgayTao:dd/MM/yyyy}")</td>
-            <td>@sp.TrangThai</td>
-            <td>@sp.SoLuong</td>
-            <td>@String.Format("{0:N0}", sp.Gia)</td>
-        </tr>
-    }
-</table>

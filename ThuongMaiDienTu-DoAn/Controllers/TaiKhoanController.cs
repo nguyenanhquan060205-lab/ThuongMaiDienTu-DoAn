@@ -12,8 +12,7 @@ namespace ThuongMaiDienTu_DoAn.Controllers
     public class TaiKhoanController : Controller
     {
         private readonly TMDTEntities db = new TMDTEntities();
-
-        // ========== [ĐĂNG NHẬP] ==========
+         
         [HttpGet]
         public ActionResult DangNhap()
         {
@@ -45,7 +44,7 @@ namespace ThuongMaiDienTu_DoAn.Controllers
                 return RedirectToAction("Index", "Home");
         }
 
-        // ========== [ĐĂNG KÝ] ==========
+        
         [HttpGet]
         public ActionResult DangKy()
         {
@@ -75,7 +74,7 @@ namespace ThuongMaiDienTu_DoAn.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-        // ========== [THÔNG TIN CÁ NHÂN] ==========
+ 
         [HttpGet]
         public ActionResult ThongTin()
         {
@@ -93,7 +92,7 @@ namespace ThuongMaiDienTu_DoAn.Controllers
             return View(currentUser);
         }
 
-        // ========== [CẬP NHẬT THÔNG TIN + ẢNH] ==========
+  
         [HttpPost]
 
         public ActionResult CapNhatThongTin(NGUOIDUNG model, HttpPostedFileBase fileUpload)
@@ -120,7 +119,7 @@ namespace ThuongMaiDienTu_DoAn.Controllers
                     return RedirectToAction("ThongTin");
                 }
 
-                // ✅ Upload ảnh đại diện
+                //  Upload ảnh đại diện
                 if (fileUpload != null && fileUpload.ContentLength > 0)
                 {
                     string[] allowedExt = { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
@@ -132,19 +131,19 @@ namespace ThuongMaiDienTu_DoAn.Controllers
                         return RedirectToAction("ThongTin");
                     }
 
-                    // 🧩 Tạo thư mục nếu chưa có
+                    //  Tạo thư mục nếu chưa có
                     string folder = Server.MapPath("~/Content/Avatars");
                     if (!Directory.Exists(folder))
                         Directory.CreateDirectory(folder);
 
-                    // 🧩 Tạo tên file an toàn
+                    //  Tạo tên file an toàn
                     string fileName = $"user_{user.MaKH}_{DateTime.Now.Ticks}{ext}";
                     string path = Path.Combine(folder, fileName);
 
-                    // 🧩 Lưu file
+                    //  Lưu file
                     fileUpload.SaveAs(path);
 
-                    // 🧩 Xóa ảnh cũ nếu không phải default
+                    // Xóa ảnh cũ nếu không phải default
                     if (!string.IsNullOrEmpty(user.AnhDaiDien) && user.AnhDaiDien != "default.jpg")
                     {
                         string oldPath = Path.Combine(folder, user.AnhDaiDien);
@@ -156,7 +155,7 @@ namespace ThuongMaiDienTu_DoAn.Controllers
                     user.AnhDaiDien = fileName;
                 }
 
-                // 🧩 Cập nhật thông tin cá nhân
+                // Cập nhật thông tin cá nhân
                 user.HoTen = model.HoTen;
                 user.GioiTinh = model.GioiTinh;
                 user.Email = model.Email;

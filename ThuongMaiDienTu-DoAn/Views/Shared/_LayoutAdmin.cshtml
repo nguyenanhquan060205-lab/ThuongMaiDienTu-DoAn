@@ -182,11 +182,28 @@
         <div class="header">
             <h3>@ViewBag.Title</h3>
             <div class="user">
+                @{
+                    string avatar = string.IsNullOrEmpty(user.AnhDaiDien)
+                        ? "Default.jpg"
+                        : user.AnhDaiDien;
+
+                    string avatarPath = Server.MapPath("~/Content/avatars/" + avatar);
+
+                    if (!System.IO.File.Exists(avatarPath))
+                    {
+                        avatar = "Default.jpg";
+                    }
+                }
+
                 @if (user != null)
                 {
-                    <img src="~/Content/Avatars/@user.AnhDaiDien" alt="Avatar" />
+                    <img src="@Url.Content("~/Content/avatars/" + avatar)"
+                         style="width:40px;height:40px;border-radius:50%;object-fit:cover;" />
                     <span>@user.HoTen</span>
                 }
+
+
+
             </div>
         </div>
 

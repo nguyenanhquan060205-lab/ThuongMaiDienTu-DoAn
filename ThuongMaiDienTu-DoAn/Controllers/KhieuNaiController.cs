@@ -9,7 +9,7 @@ namespace ThuongMaiDienTu_DoAn.Controllers
     {
         TMDTEntities db = new TMDTEntities();
 
-        // GET: /KhieuNai/TaoKhieuNai?idSanPham=...
+        // 
         public ActionResult TaoKhieuNai(int idSanPham)
         {
             var currentUser = Session["user"] as NGUOIDUNG;

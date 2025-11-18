@@ -82,7 +82,7 @@
 
                 <div class="d-flex align-items-center ms-auto">
                     <!-- TÌM KIẾM -->
-                    <form class="d-flex align-items-center me-5" method="get" action="@Url.Action("TimKiem","SanPham")">
+                    <form class="d-flex align-items-center me-5" method="get" action="@Url.Action("Index","SanPham")">
                         <input class="form-control form-control-sm me-2" type="text" name="q" placeholder="Tìm kiếm sản phẩm..." style="border-radius:20px; min-width:550px;" />
                         <button class="btn btn-warning btn-sm px-3" type="submit"><i class="fa fa-search"></i></button>
                     </form>
@@ -105,17 +105,19 @@
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end">
                                 <li><a class="dropdown-item" href="@Url.Action("ThongTin","TaiKhoan")"><i class="fa fa-user me-2"></i> Thông tin cá nhân</a></li>
-                                <li><a class="dropdown-item" href="@Url.Action("TaoMoi","SanPham")"><i class="fa fa-user me-2"></i> Đăng bán</a></li>
-                                <li>
-                                    <a class="dropdown-item" href="@Url.Action("Chat", "TinNhan", new { idNguoiDung = user.MaKH })">
-                                        Tin nhắn / Hỗ trợ
-                                    </a>
-                                </li>
+
 
                                 <li><a class="dropdown-item" href="@Url.Action("TaoMoi","SanPham")"><i class="fa fa-plus-circle me-2"></i> Đăng bán</a></li>
                                 <li><a class="dropdown-item" href="@Url.Action("CuaToi","SanPham")"><i class="fa fa-box-open me-2"></i> Bài đăng</a></li>
                                 <li><a class="dropdown-item" href="@Url.Action("LichSu","TaiKhoan")"><i class="fa fa-history me-2"></i> Lịch sử</a></li>
                                 <li><a class="dropdown-item" href="@Url.Action("SanPhamDaBan","SanPham")"><i class="fa fa-solid fa-bell"></i> Thông báo</a></li>
+                                <li>
+                                    <a class="dropdown-item" href="@Url.Action("Chat", "TinNhan", new { idNguoiDung = user.MaKH })">
+                                        <i class="fa-regular fa-comments me-2"></i>
+                                        Tin nhắn / Hỗ trợ
+                                    </a>
+
+                                </li>
                                 <li><a class="dropdown-item" href="@Url.Action("DangXuat","TaiKhoan")"><i class="fa fa-sign-out me-2"></i> Đăng xuất</a></li>
                             </ul>
                         </div>

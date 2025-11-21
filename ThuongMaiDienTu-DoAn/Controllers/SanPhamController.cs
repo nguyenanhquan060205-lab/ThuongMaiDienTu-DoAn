@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.IO;
 using System.Linq;
 using System.Web;
@@ -58,6 +59,15 @@ namespace ThuongMaiDienTu_DoAn.Controllers
 
             ViewBag.SPLienQuan = spLienQuan;
 
+            // LOGIC KIỂM TRA QUYỀN SỞ HỮU
+            var currentUser = Session["user"] as NGUOIDUNG;
+            if (currentUser != null && currentUser.MaKH == sp.MaKH)
+            {
+                // Nếu là chủ sở hữu, trả về View quản lý riêng
+                return View("ChiTietCuaNguoiBan", sp);
+            }
+
+            // Mặc định trả về View mua hàng
             return View(sp);
         }
 
@@ -199,8 +209,85 @@ namespace ThuongMaiDienTu_DoAn.Controllers
 
             return RedirectToAction("SanPhamDaBan");
         }
+        // GET: SanPham/Sua/5
+        [HttpGet]
+        public ActionResult Sua(int id)
+        {
+            var sanPham = db.SANPHAMs.Find(id);
 
+            ViewBag.MaLoai = new SelectList(db.LOAISANPHAMs, "MaLoai", "TenLoai", sanPham.MaLoai);
+            return View(sanPham); // Trả về View có form chỉnh sửa (Tên View là Sua.cshtml)
+        }
 
+        // POST: SanPham/Sua
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Sua(SANPHAM model, IEnumerable<HttpPostedFileBase> files, int? id)
+        {
+            var sanPhamGoc = db.SANPHAMs.Find(id.Value);
+
+            // Cập nhật các trường từ model nhận được
+            sanPhamGoc.TenSP = model.TenSP;
+            sanPhamGoc.Gia = model.Gia;
+            sanPhamGoc.MoTa = model.MoTa;
+            sanPhamGoc.SoLuong = model.SoLuong;
+            sanPhamGoc.MaLoai = model.MaLoai;
+            sanPhamGoc.TrangThai = "Chờ duyệt"; // Sau khi sửa, đưa về trạng thái chờ duyệt
+
+            db.Entry(sanPhamGoc).State = EntityState.Modified;
+            db.SaveChanges();
+
+            // Xử lý ảnh (Cần tạo logic quản lý ảnh chi tiết nếu muốn thay đổi/thêm ảnh mới)
+            // Hiện tại chỉ cần lưu sản phẩm đã được update
+
+            TempData["OK"] = "✅ Sản phẩm đã được cập nhật thành công và đang chờ duyệt lại.";
+            return RedirectToAction("ChiTiet", new { id = sanPhamGoc.MaSP });
+        }
+        // GET: SanPham/Xoa/5
+        [HttpGet] // Vẫn giữ là GET vì nút xóa trong view là thẻ <a>
+        public ActionResult Xoa(int id)
+        {
+            var u = Session["user"] as NGUOIDUNG;
+            var sanPham = db.SANPHAMs.Find(id);
+
+            // Kiểm tra: 1. Đã đăng nhập, 2. Sản phẩm tồn tại, 3. Là chủ sở hữu
+            if (u == null || sanPham == null || sanPham.MaKH != u.MaKH)
+            {
+                TempData["Loi"] = "Bạn không có quyền xóa sản phẩm này.";
+                return RedirectToAction("Index", "Home");
+            }
+
+            try
+            {
+                // Xóa tất cả ảnh liên quan trên server
+                var hinhAnh = db.HINHANHSPs.Where(a => a.Masp == id).ToList();
+                string path = Server.MapPath("~/Content/Images/");
+
+                foreach (var anh in hinhAnh)
+                {
+                    string fullPath = Path.Combine(path, anh.URLAnh);
+                    if (System.IO.File.Exists(fullPath) && anh.URLAnh != "noimage.jpg")
+                    {
+                        System.IO.File.Delete(fullPath);
+                    }
+                }
+
+                // Xóa ảnh trong DB
+                db.HINHANHSPs.RemoveRange(hinhAnh);
+
+                // Xóa sản phẩm
+                db.SANPHAMs.Remove(sanPham);
+                db.SaveChanges();
+
+                TempData["OK"] = "🗑️ Sản phẩm đã được xóa thành công.";
+            }
+            catch (Exception)
+            {
+                TempData["Loi"] = "⚠️ Không thể xóa sản phẩm do có ràng buộc dữ liệu (hóa đơn, đánh giá,...).";
+            }
+
+            return RedirectToAction("CuaToi"); // Chuyển về trang Sản phẩm của tôi
+        }
 
     }
 }

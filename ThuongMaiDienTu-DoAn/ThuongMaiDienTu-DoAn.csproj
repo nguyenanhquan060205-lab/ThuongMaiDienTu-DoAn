@@ -269,6 +269,7 @@
     <Content Include="Scripts\jquery.validate.unobtrusive.js" />
     <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
     <Content Include="Scripts\modernizr-2.8.3.js" />
+    <Content Include="Views\SanPham\ChiTietCuaNguoiBan.cshtml" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
@@ -305,6 +306,7 @@
     <Content Include="Views\TinNhan\Chat.cshtml" />
     <Content Include="Views\TinNhan\Index.cshtml" />
     <Content Include="Views\KhieuNai\TaoKhieuNai.cshtml" />
+    <Content Include="Views\SanPham\Sua.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

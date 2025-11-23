@@ -3,18 +3,59 @@
     // 1. Lấy thông tin người dùng
     var user = Session["user"] as ThuongMaiDienTu_DoAn.Models.NGUOIDUNG;
 
-    // 2. Xác định Controller hiện tại đang được truy cập
+    // 2. Xác định Controller và Action hiện tại
     string currentController = ViewContext.RouteData.Values["Controller"].ToString();
+    string currentAction = ViewContext.RouteData.Values["Action"].ToString();
 
-    // 3. Xác định Panel đang hiển thị (Admin hay User)
-    string sidebarController = (currentController == "Admin") ? "Admin" : "SanPham";
+    // 3. Logic kiểm tra xem có phải đang ở bối cảnh Admin không
+    // (Để quyết định hiển thị tiêu đề và nút switch User Panel)
+    bool isAdminContext = false;
+
+    if (currentController == "Admin")
+    {
+        isAdminContext = true;
+    }
+    else if ((currentController == "TinNhan" || currentController == "TaiKhoan") && user != null && user.VaiTro == "Admin")
+    {
+        isAdminContext = true;
+    }
+
+    // 4. TỰ ĐỘNG ĐẶT TIÊU ĐỀ THEO MENU
+    string pageTitle = "Dashboard quản trị"; // Mặc định
+
+    if (currentController == "Admin")
+    {
+        switch (currentAction)
+        {
+            case "Index": pageTitle = "Dashboard"; break;
+            case "QuanLySanPham": pageTitle = "Quản lý sản phẩm"; break;
+            case "QuanLyDonHang": pageTitle = "Quản lý đơn hàng"; break;
+            case "QuanLyNguoiDung": pageTitle = "Quản lý người dùng"; break;
+            case "QuanLyLoaiSP": pageTitle = "Loại sản phẩm"; break;
+            case "QuanLyKhieuNai": pageTitle = "Quản lý khiếu nại"; break;
+        }
+    }
+    else if (currentController == "TinNhan")
+    {
+        pageTitle = "Tin nhắn / Hỗ trợ";
+    }
+    else if (currentController == "TaiKhoan")
+    {
+        pageTitle = "Thông tin quản trị viên";
+    }
+
+    // Hàm Active Menu
+    string GetActive(string ctrl, string act)
+    {
+        return (currentController == ctrl && currentAction == act) ? "active" : "";
+    }
 }
 
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>@ViewBag.Title - Quản lý Hệ thống</title>
+    <title>@pageTitle - Admin Panel</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -31,6 +72,7 @@
             width: 240px;
             height: 100vh;
             position: fixed;
+            z-index: 1000;
             background: linear-gradient(180deg, #1e1e3b, #282852);
             color: #fff;
             padding: 15px 10px;
@@ -39,43 +81,42 @@
             box-shadow: 2px 0 10px rgba(0,0,0,0.1);
         }
 
-            .sidebar h2 {
-                font-size: 20px;
-                text-align: center;
-                color: #00d9ff;
-                font-weight: 600;
-                margin: 20px 0 35px; /* Giữ margin riêng cho tiêu đề chính */
-            }
-
-            /* [1] ADMIN PANEL TITLE (Màu xanh dương) */
+            /* ADMIN TITLE */
             .sidebar .panel-title {
                 text-decoration: none !important;
                 color: #00d9ff !important;
-                display: flex; /* Dùng FLEXBOX để căn icon */
-                align-items: center; /* Căn giữa theo chiều dọc */
+                display: flex;
+                align-items: center;
                 gap: 10px;
-                padding: 10px 18px; /* Đồng bộ padding với các menu item */
+                padding: 10px 18px;
                 margin: 20px 0 0;
-                font-size: 20px;
+                border-left: 3px solid transparent;
+                transition: all 0.25s ease;
+                border-radius: 8px; /* Đã bo cong */
             }
 
                 .sidebar .panel-title h2 {
-                    margin: 0 !important; /* Xóa margin thừa trong h2 */
-                    text-align: left;
+                    margin: 0 !important;
                     font-size: 20px;
                     color: #00d9ff;
                     font-weight: 600;
                 }
 
-            /* [2] USER PANEL LINK (Màu cam, ĐỒNG BỘ UI) */
+                .sidebar .panel-title:hover {
+                    background: rgba(0, 217, 255, 0.15);
+                    border-left: 3px solid #00d9ff;
+                    padding-left: 28px;
+                    cursor: pointer;
+                }
+
+            /* USER PANEL LINK */
             .sidebar .user-panel-link {
                 display: flex;
-                align-items: center; /* CĂN CHỈNH THẲNG HÀNG */
+                align-items: center;
                 gap: 10px;
-                font-size: 20px; /* Đồng bộ kích thước */
+                font-size: 20px;
                 font-weight: 600;
-                /* TRẠNG THÁI MẶC ĐỊNH */
-                color: #ff9800 !important; /* MÀU CAM MẶC ĐỊNH */
+                color: #ff9800 !important;
                 background: transparent;
                 border-left: 3px solid transparent;
                 padding: 10px 18px;
@@ -86,19 +127,20 @@
             }
 
                 .sidebar .user-panel-link i {
-                    width: 22px; /* Đảm bảo icon có cùng kích thước với menu item */
+                    width: 22px;
                     text-align: center;
-                    color: #ff9800 !important; /* Icon cũng màu cam mặc định */
+                    color: #ff9800 !important;
                 }
 
-                /* TRẠNG THÁI HOVER */
                 .sidebar .user-panel-link:hover {
                     color: #ff9800 !important;
-                    background: rgba(255, 152, 0, 0.2); /* Nền cam nhạt khi hover */
-                    border-left: 3px solid #ff9800; /* Viền cam khi hover */
+                    background: rgba(255, 152, 0, 0.2);
+                    border-left: 3px solid #ff9800;
+                    padding-left: 25px;
                 }
 
-            .sidebar a {
+            /* MENU LINKS */
+            .sidebar a:not(.panel-title):not(.user-panel-link):not(.logout) {
                 display: flex;
                 align-items: center;
                 gap: 10px;
@@ -109,30 +151,48 @@
                 font-size: 15px;
                 border-radius: 8px;
                 transition: all 0.25s;
+                border-left: 3px solid transparent;
             }
 
-                .sidebar a i {
-                    width: 22px;
-                    text-align: center;
-                }
+            .sidebar a i {
+                width: 22px;
+                text-align: center;
+            }
 
-                .sidebar a:hover,
-                .sidebar a.active {
-                    color: #fff;
-                    background: rgba(0, 217, 255, 0.2);
-                    border-left: 3px solid #00d9ff;
-                    padding-left: 15px;
-                }
+            .sidebar a:not(.panel-title):not(.user-panel-link):not(.logout):hover,
+            .sidebar a:not(.panel-title):not(.user-panel-link):not(.logout).active {
+                color: #fff;
+                background: rgba(0, 217, 255, 0.2);
+                border-left: 3px solid #00d9ff;
+                padding-left: 25px;
+            }
 
+        /* LOGOUT */
         .logout {
             position: absolute;
             bottom: 20px;
             left: 15px;
+            right: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
             color: #ff5555 !important;
             font-weight: 500;
+            text-decoration: none;
+            padding: 10px 18px;
+            border-radius: 8px;
+            transition: all 0.25s;
+            border-left: 3px solid transparent;
         }
 
-        /* ==== MAIN AREA ==== */
+            .logout:hover {
+                color: #fff !important;
+                background: rgba(255, 85, 85, 0.2);
+                border-left: 3px solid #ff5555;
+                padding-left: 25px;
+            }
+
+        /* MAIN AREA */
         .main {
             margin-left: 250px;
             padding: 25px;
@@ -170,7 +230,7 @@
                     border: 2px solid #00d9ff;
                 }
 
-        /* ==== CONTENT ==== */
+        /* CONTENT */
         .card {
             border: none;
             border-radius: 12px;
@@ -183,24 +243,6 @@
                 box-shadow: 0 6px 18px rgba(0,0,0,0.1);
             }
 
-            .card h5 {
-                font-weight: bold;
-                color: #333;
-            }
-
-            .card p {
-                color: #666;
-            }
-
-        .btn-primary {
-            background-color: #00c4ff;
-            border: none;
-        }
-
-            .btn-primary:hover {
-                background-color: #00a8e0;
-            }
-
         footer {
             text-align: center;
             margin-top: 40px;
@@ -208,7 +250,6 @@
             color: #777;
         }
 
-        /* RESPONSIVE */
         @@media (max-width: 991px) {
             .sidebar {
                 width: 100%;
@@ -219,64 +260,67 @@
             .main {
                 margin-left: 0;
             }
+
+            .logout {
+                position: relative;
+                bottom: auto;
+                margin-top: 20px;
+            }
         }
     </style>
 </head>
 
 <body>
-    <!-- SIDEBAR --><div class="sidebar">
-        <!-- TIÊU ĐỀ ADMIN PANEL CLICKABLE --><a href="@Url.Action("Index", "Admin")" class="panel-title">
-            <!-- Icon và text được căn chỉnh thẳng hàng -->
+    <div class="sidebar">
+        <a href="@Url.Action("Index", "Admin")" class="panel-title">
             <h2 class="m-0"><i class="fa-solid fa-gear me-2"></i>Admin Panel</h2>
         </a>
 
-        <!-- USER PANEL (Màu cam) - Chỉ hiện khi đang ở Admin Panel và là Admin -->
-        @if (user != null && user.VaiTro == "Admin" && sidebarController == "Admin")
+        @if (user != null && user.VaiTro == "Admin" && isAdminContext)
         {
             <a href="@Url.Action("Index", "Home")" class="user-panel-link">
                 <i class="fa-solid fa-user-circle"></i>User Panel
             </a>
         }
 
-        <!-- MENU LOGIC -->@if (sidebarController == "Admin")
+        @if (isAdminContext)
         {
-            <!-- MENU DÀNH CHO ADMIN --><a href="@Url.Action("Index","Admin")" class="@(currentController == "Admin" && ViewContext.RouteData.Values["Action"].ToString() == "Index" ? "active" : "")"><i class="fa-solid fa-chart-column"></i>Dashboard</a>
-            <a href="@Url.Action("DuyetTin","Admin")"><i class="fa-solid fa-box"></i>Quản lý sản phẩm</a>
-            <a href="@Url.Action("QuanLyDonHang","Admin")"><i class="fa-solid fa-file-invoice"></i>Quản lý đơn hàng</a>
-            <a href="@Url.Action("QuanLyNguoiDung","Admin")"><i class="fa-solid fa-users"></i>Quản lý người dùng</a>
-            <a href="@Url.Action("QuanLyLoaiSP","Admin")"><i class="fa-solid fa-layer-group"></i>Loại sản phẩm</a>
-            <a href="@Url.Action("QuanLyKhieuNai","Admin")"><i class="fa-solid fa-triangle-exclamation"></i>Quản lý khiếu nại</a>
-            <a href="@Url.Action("Chat","TinNhan")"><i class="fa-solid fa-comments"></i>Tin nhắn / Hỗ trợ</a>
-        }
-        else
-        {
-            <!-- MENU DÀNH CHO USER/NGƯỜI BÁN --><a href="@Url.Action("Index","SanPham")" class="@(currentController == "SanPham" && ViewContext.RouteData.Values["Action"].ToString() == "Index" ? "active" : "")"><i class="fa-solid fa-house"></i>Tổng quan</a>
-            <a href="@Url.Action("TaoMoi","SanPham")" class="@(ViewContext.RouteData.Values["Action"].ToString() == "TaoMoi" ? "active" : "")"><i class="fa-solid fa-circle-plus"></i>Đăng tin bán</a>
-            <a href="@Url.Action("CuaToi","SanPham")" class="@(ViewContext.RouteData.Values["Action"].ToString() == "CuaToi" ? "active" : "")"><i class="fa-solid fa-tag"></i>Sản phẩm của tôi</a>
-            <a href="@Url.Action("SanPhamDaBan","SanPham")" class="@(ViewContext.RouteData.Values["Action"].ToString() == "SanPhamDaBan" ? "active" : "")"><i class="fa-solid fa-cash-register"></i>Sản phẩm đã bán</a>
-            <a href="@Url.Action("Chat","TinNhan")"><i class="fa-solid fa-comments"></i>Hỗ trợ / Tin nhắn</a>
+            <a href="@Url.Action("Index","Admin")" class="@GetActive("Admin", "Index")"><i class="fa-solid fa-chart-column"></i>Dashboard</a>
+            <a href="@Url.Action("QuanLySanPham","Admin")" class="@GetActive("Admin", "QuanLySanPham")"><i class="fa-solid fa-box"></i>Quản lý sản phẩm</a>
+            <a href="@Url.Action("QuanLyDonHang","Admin")" class="@GetActive("Admin", "QuanLyDonHang")"><i class="fa-solid fa-file-invoice"></i>Quản lý đơn hàng</a>
+            <a href="@Url.Action("QuanLyNguoiDung","Admin")" class="@GetActive("Admin", "QuanLyNguoiDung")"><i class="fa-solid fa-users"></i>Quản lý người dùng</a>
+            <a href="@Url.Action("QuanLyKhieuNai","Admin")" class="@GetActive("Admin", "QuanLyKhieuNai")"><i class="fa-solid fa-triangle-exclamation"></i>Quản lý khiếu nại</a>
+            <a href="@Url.Action("Chat","TinNhan")" class="@GetActive("TinNhan", "Chat")"><i class="fa-solid fa-comments"></i>Tin nhắn / Hỗ trợ</a>
         }
 
-        <!-- NÚT ĐĂNG XUẤT --><a href="@Url.Action("DangXuat","TaiKhoan")" class="logout"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a>
+        <a href="@Url.Action("DangXuat","TaiKhoan")" class="logout">
+            <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất
+        </a>
     </div>
 
-    <!-- MAIN CONTENT --><div class="main">
+    <div class="main">
         <div class="header">
-            <h3>@ViewBag.Title</h3>
+            <h3>@pageTitle</h3>
+
             <div class="user">
                 @{
-                    string avatar = string.IsNullOrEmpty(user.AnhDaiDien)
-                        ? "Default.jpg"
-                        : user.AnhDaiDien;
+                    string avatar = string.IsNullOrEmpty(user?.AnhDaiDien) ? "Default.jpg" : user.AnhDaiDien;
                 }
 
                 @if (user != null)
                 {
-                    <img src="@Url.Content("~/Content/avatars/" + avatar)"
-                         style="width:40px;height:40px;border-radius:50%;object-fit:cover;" />
-                    <span>@user.HoTen</span>
+                    <a href="@Url.Action("ThongTinAdmin", "TaiKhoan")"
+                       class="d-flex align-items-center gap-2 text-decoration-none text-dark"
+                       title="Xem thông tin cá nhân">
+
+                        <img src="@Url.Content("~/Content/avatars/" + avatar)"
+                             style="width:40px;height:40px;border-radius:50%;object-fit:cover; border: 2px solid #00d9ff;" />
+
+                        <span class="fw-bold">@user.HoTen</span>
+                    </a>
                 }
-                <!-- Nút Admin Panel (khi đang ở User Panel) -->@if (user != null && user.VaiTro == "Admin" && sidebarController != "Admin")
+
+                @if (user != null && user.VaiTro == "Admin" && !isAdminContext)
                 {
                     <a href="@Url.Action("Index", "Admin")" class="btn btn-sm btn-outline-info ms-3">Admin Panel</a>
                 }
@@ -289,5 +333,6 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    @RenderSection("Scripts", required: false)
 </body>
 </html>

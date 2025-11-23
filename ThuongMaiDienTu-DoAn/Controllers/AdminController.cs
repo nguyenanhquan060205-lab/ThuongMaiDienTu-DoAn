@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data.Entity;
+using System.IO;
 using System.Linq;
 using System.Web.Mvc;
 using ThuongMaiDienTu_DoAn.Filters;
@@ -23,14 +24,7 @@ namespace ThuongMaiDienTu_DoAn.Controllers
         }
 
         // === DUYỆT TIN / SẢN PHẨM ===
-        public ActionResult DuyetTin()
-        {
-            var list = db.SANPHAMs
-                .Include(s => s.NGUOIDUNG)
-                .OrderByDescending(x => x.NgayTao)
-                .ToList();
-            return View(list);
-        }
+
 
         [HttpPost]
         public ActionResult DoiTrangThai(int id, string tt)
@@ -43,7 +37,7 @@ namespace ThuongMaiDienTu_DoAn.Controllers
             db.SaveChanges();
 
             TempData["Success"] = $"✅ Đã cập nhật trạng thái sản phẩm **{sp.TenSP}** thành '{tt}'";
-            return RedirectToAction("DuyetTin");
+            return RedirectToAction("QuanLySanPham");
         }
 
         // === QUẢN LÝ NGƯỜI DÙNG ===
@@ -56,11 +50,23 @@ namespace ThuongMaiDienTu_DoAn.Controllers
         // === QUẢN LÝ SẢN PHẨM ===
         public ActionResult QuanLySanPham()
         {
-            var ds = db.SANPHAMs.Include(x => x.NGUOIDUNG)
-                                 .Include(x => x.LOAISANPHAM)
-                                 .OrderByDescending(x => x.NgayTao)
-                                 .ToList();
-            return View(ds);
+            // 1. Lấy dữ liệu Sản phẩm
+            var listSP = db.SANPHAMs
+                .Include(s => s.NGUOIDUNG)
+                .OrderByDescending(x => x.NgayTao)
+                .ToList();
+
+            // 2. Lấy dữ liệu Loại (kèm sản phẩm con)
+            var listLoai = db.LOAISANPHAMs.Include("SANPHAMs").ToList();
+
+            // 3. Đổ vào ViewModel (lúc này nó tự hiểu class nằm trong thư mục Models)
+            var model = new AdminProductViewModel
+            {
+                SanPhams = listSP,
+                LoaiSanPhams = listLoai
+            };
+
+            return View(model);
         }
 
         // === QUẢN LÝ ĐƠN HÀNG ===
@@ -82,31 +88,6 @@ namespace ThuongMaiDienTu_DoAn.Controllers
 
             return View(donhangs);
         }
-
-        // === LOẠI SẢN PHẨM ===
-        public ActionResult QuanLyLoaiSP()
-        {
-            var loais = db.LOAISANPHAMs.ToList();
-            return View(loais);
-        }
-
-            [HttpPost]
-        public ActionResult ThemLoaiSP(string tenLoai)
-        {
-            if (string.IsNullOrWhiteSpace(tenLoai))
-            {
-                TempData["Error"] = "Tên loại không được để trống!";
-                return RedirectToAction("QuanLyLoaiSP");
-            }
-
-            var loai = new LOAISANPHAM { TenLoai = tenLoai };
-            db.LOAISANPHAMs.Add(loai);
-            db.SaveChanges();
-
-            TempData["Success"] = "✅ Đã thêm loại sản phẩm mới!";
-            return RedirectToAction("QuanLyLoaiSP");
-        }
-
 
         // === QUẢN LÝ KHIẾU NẠI ===
         public ActionResult QuanLyKhieuNai()
@@ -138,6 +119,48 @@ namespace ThuongMaiDienTu_DoAn.Controllers
             return Json(new { ok = true, status = kn.TrangThai });
         }
 
+        // [POST] XÓA SẢN PHẨM TỪ ADMIN
+        [HttpPost]
+        public ActionResult Xoa(int id)
+        {
+            var sp = db.SANPHAMs.Find(id);
+            if (sp == null)
+            {
+                TempData["Error"] = "Sản phẩm không tồn tại!";
+                return RedirectToAction("QuanLySanPham");
+            }
 
+            try
+            {
+                // 1. Xóa ảnh trên server
+                var hinhAnhs = db.HINHANHSPs.Where(h => h.Masp == id).ToList();
+                string path = Server.MapPath("~/Content/Images/");
+                foreach (var item in hinhAnhs)
+                {
+                    string fullPath = Path.Combine(path, item.URLAnh);
+                    if (System.IO.File.Exists(fullPath) && item.URLAnh != "noimage.jpg")
+                    {
+                        System.IO.File.Delete(fullPath);
+                    }
+                }
+
+                // 2. Xóa dữ liệu trong DB (Xóa ảnh trước -> Xóa SP sau)
+                db.HINHANHSPs.RemoveRange(hinhAnhs);
+                db.SANPHAMs.Remove(sp);
+                db.SaveChanges();
+
+                TempData["Success"] = "🗑️ Đã xóa sản phẩm vĩnh viễn!";
+            }
+            catch (Exception)
+            {
+                // Trường hợp lỗi do ràng buộc khóa ngoại (đã có đơn hàng, đánh giá...)
+                // Ta chuyển sang trạng thái Ẩn thay vì xóa
+                sp.TrangThai = "Ẩn";
+                db.SaveChanges();
+                TempData["Success"] = "⚠️ Sản phẩm đã có đơn hàng, không thể xóa hẳn. Hệ thống đã chuyển sang trạng thái 'Ẩn'.";
+            }
+
+            return RedirectToAction("QuanLySanPham");
+        }
     }
 }

@@ -74,41 +74,72 @@ namespace ThuongMaiDienTu_DoAn.Controllers
             return RedirectToAction("Index", "Home");
         }
 
- 
-        [HttpGet]
-        public ActionResult ThongTin()
-        {
-            var user = Session["user"] as NGUOIDUNG;
-            if (user == null)
-                return RedirectToAction("DangNhap");
 
-            var currentUser = db.NGUOIDUNGs.Find(user.MaKH);
+        // GET: TaiKhoan/ThongTinKhachHang/5
+        [HttpGet]
+        public ActionResult ThongTinKhachHang(int? id)
+        {
+            var currentUser = Session["user"] as NGUOIDUNG;
+
+            // 1. Chưa đăng nhập -> Đá về Login
             if (currentUser == null)
             {
-                Session.Clear();
-                return RedirectToAction("DangNhap");
+                return RedirectToAction("DangNhap", "TaiKhoan");
             }
 
-            return View(currentUser);
+            NGUOIDUNG targetUser;
+
+            // 2. LOGIC QUAN TRỌNG:
+            // Nếu có ID truyền vào VÀ người đang đăng nhập là Admin -> Xem thông tin người khác
+            if (id.HasValue && currentUser.VaiTro == "Admin")
+            {
+                targetUser = db.NGUOIDUNGs.Find(id);
+                if (targetUser == null) return HttpNotFound(); // Không tìm thấy user này
+            }
+            else
+            {
+                // Ngược lại (Khách xem mình hoặc Admin xem mình) -> Lấy từ Session
+                targetUser = db.NGUOIDUNGs.Find(currentUser.MaKH);
+            }
+
+            return View(targetUser);
         }
 
-  
-        [HttpPost]
+        // GET: TaiKhoan/ThongTinAdmin
+        public ActionResult ThongTinAdmin()
+        {
+            var user = Session["user"] as ThuongMaiDienTu_DoAn.Models.NGUOIDUNG;
 
+            // Kiểm tra: Nếu chưa đăng nhập hoặc không phải Admin thì đuổi về trang đăng nhập
+            if (user == null || user.VaiTro != "Admin")
+            {
+                return RedirectToAction("DangNhap", "TaiKhoan");
+            }
+
+            return View(user);
+        }
+
+
+        [HttpPost]
         public ActionResult CapNhatThongTin(NGUOIDUNG model, HttpPostedFileBase fileUpload)
         {
+            // 1. Tìm user trong DB trước để lấy VaiTro
+            var user = db.NGUOIDUNGs.Find(model.MaKH);
+            if (user == null) return RedirectToAction("DangNhap");
+
+            // 2. XÁC ĐỊNH TRANG ĐÍCH (QUAN TRỌNG)
+            // Nếu là Admin -> Về ThongTinAdmin
+            // Nếu là Khách -> Về ThongTinKhachHang
+            string actionName = (user.VaiTro == "Admin") ? "ThongTinAdmin" : "ThongTinKhachHang";
+
             try
             {
-                var user = db.NGUOIDUNGs.Find(model.MaKH);
-                if (user == null)
-                    return RedirectToAction("DangNhap");
-
                 // Kiểm tra Email trùng
                 if (!string.IsNullOrWhiteSpace(model.Email) &&
                     db.NGUOIDUNGs.Any(x => x.Email == model.Email && x.MaKH != model.MaKH))
                 {
                     TempData["Error"] = "Email đã được sử dụng bởi tài khoản khác!";
-                    return RedirectToAction("ThongTin");
+                    return RedirectToAction(actionName); // Trả về đúng trang
                 }
 
                 // Kiểm tra SĐT trùng
@@ -116,10 +147,10 @@ namespace ThuongMaiDienTu_DoAn.Controllers
                     db.NGUOIDUNGs.Any(x => x.SDT == model.SDT && x.MaKH != model.MaKH))
                 {
                     TempData["Error"] = "Số điện thoại đã được sử dụng bởi tài khoản khác!";
-                    return RedirectToAction("ThongTin");
+                    return RedirectToAction(actionName); // Trả về đúng trang
                 }
 
-                //  Upload ảnh đại diện
+                // Upload ảnh đại diện
                 if (fileUpload != null && fileUpload.ContentLength > 0)
                 {
                     string[] allowedExt = { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
@@ -128,55 +159,53 @@ namespace ThuongMaiDienTu_DoAn.Controllers
                     if (!allowedExt.Contains(ext))
                     {
                         TempData["Error"] = "Định dạng ảnh không hợp lệ!";
-                        return RedirectToAction("ThongTin");
+                        return RedirectToAction(actionName); // Trả về đúng trang
                     }
 
-                    //  Tạo thư mục nếu chưa có
+                    // Tạo thư mục
                     string folder = Server.MapPath("~/Content/Avatars");
-                    if (!Directory.Exists(folder))
-                        Directory.CreateDirectory(folder);
+                    if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);
 
-                    //  Tạo tên file an toàn
+                    // Tạo tên file
                     string fileName = $"user_{user.MaKH}_{DateTime.Now.Ticks}{ext}";
                     string path = Path.Combine(folder, fileName);
 
-                    //  Lưu file
+                    // Lưu file
                     fileUpload.SaveAs(path);
 
-                    // Xóa ảnh cũ nếu không phải default
+                    // Xóa ảnh cũ
                     if (!string.IsNullOrEmpty(user.AnhDaiDien) && user.AnhDaiDien != "default.jpg")
                     {
                         string oldPath = Path.Combine(folder, user.AnhDaiDien);
-                        if (System.IO.File.Exists(oldPath))
-                            System.IO.File.Delete(oldPath);
+                        if (System.IO.File.Exists(oldPath)) System.IO.File.Delete(oldPath);
                     }
 
-                    // Cập nhật DB
                     user.AnhDaiDien = fileName;
                 }
 
-                // Cập nhật thông tin cá nhân
+                // Cập nhật thông tin
                 user.HoTen = model.HoTen;
                 user.GioiTinh = model.GioiTinh;
-                user.Email = model.Email;
+                // user.Email = model.Email; // Thường Email là tên đăng nhập, hạn chế cho sửa, nhưng nếu bạn muốn sửa thì bỏ comment
                 user.SDT = model.SDT;
                 user.DiaChi = model.DiaChi;
 
                 db.Entry(user).State = EntityState.Modified;
                 db.SaveChanges();
 
+                // Cập nhật lại Session để hiển thị ngay lập tức trên Header
                 Session["user"] = user;
-                TempData["Success"] = "Cập nhật thành công!";
+
+                TempData["Success"] = "✅ Cập nhật thông tin thành công!";
             }
             catch (Exception ex)
             {
-                string logPath = Server.MapPath("~/error_log.txt");
-                System.IO.File.AppendAllText(logPath, $"{DateTime.Now}: {ex}\n");
-
-                TempData["Error"] = "Đã xảy ra lỗi khi cập nhật thông tin!";
+                // Ghi log lỗi (Optional)
+                TempData["Error"] = "Đã xảy ra lỗi hệ thống: " + ex.Message;
             }
 
-            return RedirectToAction("ThongTin");
+            // Quay về đúng trang đích đã xác định ở trên
+            return RedirectToAction(actionName);
         }
 
         // ========== [ĐĂNG XUẤT] ==========
@@ -212,20 +241,50 @@ namespace ThuongMaiDienTu_DoAn.Controllers
             return View(dsDonHang);
         }
 
+        // GET: Chi tiết lịch sử đơn hàng (Admin xem được của tất cả mọi người)
         public ActionResult CT_LichSu(int id)
         {
             var kh = Session["user"] as NGUOIDUNG;
-            var hd = db.HOADONs.FirstOrDefault(d => d.MaHD == id && d.MaKH == kh.MaKH);
+
+            // 1. Kiểm tra đăng nhập
+            if (kh == null)
+            {
+                return RedirectToAction("DangNhap", "TaiKhoan");
+            }
+
+            // 2. Tìm hóa đơn theo ID (Bỏ điều kiện MaKH ở đây để tìm được đơn của người khác)
+            var hd = db.HOADONs.FirstOrDefault(d => d.MaHD == id);
+
             if (hd == null)
             {
                 return HttpNotFound();
             }
+
+            // 3. KIỂM TRA QUYỀN HẠN (QUAN TRỌNG)
+            // Nếu người xem KHÔNG PHẢI chủ đơn hàng VÀ cũng KHÔNG PHẢI Admin -> Chặn
+            if (hd.MaKH != kh.MaKH && kh.VaiTro != "Admin")
+            {
+                return new HttpStatusCodeResult(403, "Bạn không có quyền xem đơn hàng này.");
+            }
+
+            // 4. Lấy chi tiết sản phẩm
             var chiTiet = db.CT_HOADON
                     .Where(ct => ct.MaHD == id)
                     .Include(ct => ct.SANPHAM)
                     .Include(ct => ct.HOADON)
                     .ToList();
+
             ViewBag.ChiTiet = chiTiet;
+
+            // 5. Trả về View
+            // Nếu bạn muốn Admin xem thì hiện Layout Admin, User xem hiện Layout User thì thêm đoạn này:
+            if (kh.VaiTro == "Admin")
+            {
+                // Cách này giúp Admin không bị nhảy về giao diện người dùng
+                // Yêu cầu: View CT_LichSu.cshtml phải hỗ trợ đổi Layout động (giống ThongTin.cshtml)
+                // Hoặc đơn giản là return View(hd); nếu View đó dùng Layout = null hoặc logic động.
+            }
+
             return View(hd);
         }
         [HttpGet]

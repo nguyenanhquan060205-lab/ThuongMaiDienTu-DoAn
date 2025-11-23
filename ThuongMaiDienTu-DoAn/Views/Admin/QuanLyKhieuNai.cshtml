@@ -1,116 +1,276 @@
-﻿@model IEnumerable<ThuongMaiDienTu_DoAn.Models.KHIEUNAI>
+﻿@using ThuongMaiDienTu_DoAn.Models
+@model IEnumerable<KHIEUNAI>
 
 @{
-    ViewBag.Title = "Dashboard quản trị";
+    ViewBag.Title = "Quản lý khiếu nại";
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
 }
 
-<div class="container-fluid px-4 mt-4">
-    <h2 class="fw-bold text-primary mb-3">Quản lý khiếu nại</h2>
+<style>
+    /* Tab Styling (Copy y nguyên từ trang SP) */
+    .nav-tabs .nav-link {
+        color: #6c757d;
+        font-weight: 600;
+        border: none;
+        padding: 12px 20px;
+        transition: 0.2s;
+    }
 
-    @using (Html.BeginForm())
-    {@Html.AntiForgeryToken()}
+        .nav-tabs .nav-link.active {
+            color: #0d6efd;
+            border-bottom: 3px solid #0d6efd;
+            background: transparent;
+        }
 
-    <div class="card shadow-sm border-0">
-        <div class="card-body">
-            <h5 class="fw-bold text-dark mb-3">Danh sách khiếu nại</h5>
+        .nav-tabs .nav-link:hover {
+            color: #0a58ca;
+        }
 
-            <table class="table table-bordered text-center align-middle">
-                <thead class="table-info">
-                    <tr>
-                        <th>Mã KN</th>
-                        <th>Người gửi</th>
-                        <th>Sản phẩm</th>
-                        <th>Nội dung</th>
-                        <th>Ngày gửi</th>
-                        <th>Trạng thái</th>
-                        <th>Thao tác</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (Model != null && Model.Any())
-                    {
-                        foreach (var item in Model)
-                        {
-                            string badgeClass =
-                                item.TrangThai == "Chưa xử lý" ? "bg-warning text-dark" :
-                                item.TrangThai == "Đang xử lý" ? "bg-info text-white" :
-                                "bg-success text-white";
+    /* Table Styling */
+    .table th {
+        background-color: #f8f9fa;
+        color: #495057;
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 0.5px;
+        cursor: pointer;
+        user-select: none;
+        vertical-align: middle;
+    }
 
-                            <tr id="row-@item.MaKN">
-                                <td>@item.MaKN</td>
-                                <td>@item.NGUOIDUNG.HoTen</td>
-                                <td>@item.SANPHAM.TenSP</td>
-                                <td class="text-start">@item.MoTa</td>
-                                <td>@string.Format("{0:dd/MM/yyyy}", item.NgayGui)</td>
-                                <td>
-                                    <span class="badge badge-status @badgeClass px-3 py-2 fs-6">
-                                        @item.TrangThai
-                                    </span>
-                                </td>
-                                <td class="text-nowrap">
-                                    @if (item.TrangThai != "Đã giải quyết")
+        .table th:hover {
+            background-color: #e9ecef;
+            color: #0d6efd;
+        }
+
+    .table td {
+        vertical-align: middle;
+        font-size: 0.95rem;
+        color: #333;
+    }
+
+    /* Search Box */
+    .search-box .input-group-text {
+        background-color: #fff;
+        border-right: none;
+        color: #aaa;
+    }
+
+    .search-box .form-control {
+        border-left: none;
+        box-shadow: none;
+    }
+
+        .search-box .form-control:focus {
+            border-color: #ced4da;
+        }
+</style>
+
+<div class="container-fluid px-4 mt-4 pb-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
+
+        <ul class="nav nav-tabs border-0 m-0" id="myTab" role="tablist">
+            <li class="nav-item">
+                <button class="nav-link active" id="complaint-tab" data-bs-toggle="tab" data-bs-target="#complaint-pane" type="button">
+                    <i class="fa-solid fa-triangle-exclamation me-2"></i> Quản lý khiếu nại
+                </button>
+            </li>
+        </ul>
+
+        <div class="input-group search-box" style="max-width: 300px;">
+            <span class="input-group-text"><i class="fa-solid fa-search"></i></span>
+            <input type="text" id="searchInput" class="form-control" placeholder="Tìm người gửi, nội dung...">
+        </div>
+    </div>
+
+    <div class="tab-content" id="myTabContent">
+
+        <div class="tab-pane fade show active" id="complaint-pane" role="tabpanel">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-0">
+
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0" id="complaintTable">
+                            <thead>
+                                <tr class="text-center">
+                                    <th style="width: 20%; text-align: left; padding-left: 20px;" onclick="sortTable(0, this)">
+                                        Người gửi <i class="fa-solid fa-sort float-end text-muted mt-1"></i>
+                                    </th>
+
+                                    <th style="width: 25%; text-align: left;" onclick="sortTable(1, this)">
+                                        Sản phẩm <i class="fa-solid fa-sort float-end text-muted mt-1"></i>
+                                    </th>
+
+                                    <th style="width: 30%; text-align: left;">
+                                        Nội dung chi tiết
+                                    </th>
+
+                                    <th style="width: 10%;" onclick="sortTable(3, this)">
+                                        Ngày gửi <i class="fa-solid fa-sort float-end text-muted mt-1"></i>
+                                    </th>
+
+                                    <th style="width: 15%;">
+                                        <div class="dropdown d-inline-block">
+                                            <span class="dropdown-toggle fw-bold" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer;">
+                                                Trạng thái
+                                            </span>
+                                            <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                                                <li><a class="dropdown-item" href="#" onclick="filterStatus('all')">Tất cả</a></li>
+                                                <li><hr class="dropdown-divider"></li>
+                                                <li><a class="dropdown-item text-warning" href="#" onclick="filterStatus('Chưa xử lý')">Chưa xử lý</a></li>
+                                                <li><a class="dropdown-item text-success" href="#" onclick="filterStatus('Đã giải quyết')">Đã giải quyết</a></li>
+                                            </ul>
+                                        </div>
+                                    </th>
+
+                                    <th style="width: 10%;">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableBody">
+                                @if (Model != null && Model.Any())
+                                {
+                                    foreach (var item in Model)
                                     {
-                                        <button type="button"
-                                                class="btn btn-sm btn-success btn-set"
-                                                data-id="@item.MaKN"
-                                                data-state="Đã giải quyết">
-                                            <i class="bi bi-check-circle me-1"></i>Đã xử lý
-                                        </button>
+                                        string badgeClass = item.TrangThai == "Đã giải quyết" ? "bg-success" : "bg-warning text-dark";
+
+                                        <tr class="status-row text-center" data-status="@item.TrangThai">
+                                            <td class="text-start fw-bold text-dark" style="padding-left: 20px;">
+                                                <i class="fa-solid fa-user me-2 text-muted"></i> @(item.NGUOIDUNG?.HoTen ?? "Ẩn danh")
+                                            </td>
+
+                                            <td class="text-start text-primary fw-semibold">
+                                                @(item.SANPHAM?.TenSP ?? "Sản phẩm đã xóa")
+                                            </td>
+
+                                            <td class="text-start text-muted small">
+                                                @item.MoTa
+                                            </td>
+
+                                            <td data-date="@(item.NgayGui.HasValue ? item.NgayGui.Value.ToString("yyyyMMddHHmmss") : "0")">
+                                                @(item.NgayGui.HasValue ? item.NgayGui.Value.ToString("dd/MM/yyyy") : "-")
+                                            </td>
+
+                                            <td>
+                                                <span class="badge @badgeClass rounded-pill fw-bold py-2 px-3" style="min-width: 100px;">
+                                                    @item.TrangThai
+                                                </span>
+                                            </td>
+
+                                            <td>
+                                                @if (item.TrangThai == "Chưa xử lý")
+                                                {
+                                                    <form action="@Url.Action("CapNhatTrangThaiKN", "Admin")" method="post">
+                                                        <input type="hidden" name="id" value="@item.MaKN" />
+                                                        <button type="submit" name="trangThai" value="Đã giải quyết"
+                                                                class="btn btn-success btn-sm fw-bold shadow-sm"
+                                                                style="width: 100px;">
+                                                            Xử lý xong
+                                                        </button>
+                                                    </form>
+                                                }
+                                                else
+                                                {
+                                                    <button type="button" class="btn btn-light btn-sm text-muted border"
+                                                            style="width: 100px;" disabled>
+                                                        Hoàn tất
+                                                    </button>
+                                                }
+                                            </td>
+                                        </tr>
                                     }
-                                    else
-                                    {
-                                        <button class="btn btn-sm btn-outline-secondary" disabled>
-                                            <i class="bi bi-check2-all"></i> Hoàn tất
-                                        </button>
-                                    }
-                                </td>
-                            </tr>
-                        }
-                    }
-                    else
-                    {
-                        <tr><td colspan="7" class="text-muted py-4">Không có khiếu nại nào.</td></tr>
-                    }
-                </tbody>
-            </table>
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="6" class="text-center text-muted py-5">
+                                            <i class="fa-solid fa-check-double fs-1 mb-3 d-block text-success opacity-50"></i>
+                                            Không có khiếu nại nào.
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script>
-$(document).on('click', '.btn-set', function () {
-    const id = $(this).data('id');
-    const newState = $(this).data('state');
-    const token = $('input[name="__RequestVerificationToken"]').val();
-    const btn = $(this);
+    // 1. TÌM KIẾM
+    document.getElementById('searchInput').addEventListener('keyup', function () {
+        let filter = this.value.toLowerCase();
+        let rows = document.querySelectorAll('#tableBody tr.status-row');
+        rows.forEach(row => {
+            let textGui = row.cells[0].textContent.toLowerCase();
+            let textSP = row.cells[1].textContent.toLowerCase();
 
-    btn.prop('disabled', true)
-       .html('<span class="spinner-border spinner-border-sm"></span> Đang xử lý...');
-
-    $.post('@Url.Action("CapNhatTrangThaiKN","Admin")',
-        { id: id, trangThai: newState, __RequestVerificationToken: token })
-        .done(function (res) {
-            if (res && res.ok) {
-                const row = $('#row-' + id);
-                const badge = row.find('.badge-status');
-                badge.text(res.status)
-                     .removeClass('bg-warning bg-info bg-success text-dark text-white')
-                     .addClass('bg-success text-white')
-                     .text('Đã giải quyết');
-
-                btn.removeClass('btn-success')
-                   .addClass('btn-outline-secondary')
-                   .html('<i class="bi bi-check2-all"></i> Hoàn tất');
+            if ((textGui.includes(filter) || textSP.includes(filter))) {
+                if (row.getAttribute('data-filtered') !== 'hidden') {
+                    row.style.display = '';
+                }
             } else {
-                alert('Cập nhật không thành công.');
-                btn.prop('disabled', false).text('Đã xử lý');
+                row.style.display = 'none';
             }
-        })
-        .fail(() => {
-            alert('Lỗi máy chủ!');
-            btn.prop('disabled', false).text('Đã xử lý');
         });
-});
+    });
+
+    // 2. LỌC TRẠNG THÁI
+    function filterStatus(status) {
+        let rows = document.querySelectorAll('.status-row');
+        rows.forEach(row => {
+            let rowStatus = row.getAttribute('data-status');
+            if (status === 'all' || rowStatus === status) {
+                row.setAttribute('data-filtered', 'visible');
+                row.style.display = '';
+            } else {
+                row.setAttribute('data-filtered', 'hidden');
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    // 3. SẮP XẾP
+    function sortTable(n, thElement) {
+        var table = document.getElementById("complaintTable");
+        var rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+        switching = true;
+        dir = "asc";
+
+        var allIcons = table.querySelectorAll('th i');
+        allIcons.forEach(icon => icon.className = "fa-solid fa-sort float-end text-muted mt-1");
+        var currentIcon = thElement.querySelector('i');
+
+        while (switching) {
+            switching = false;
+            rows = table.rows;
+            for (i = 1; i < (rows.length - 1); i++) {
+                shouldSwitch = false;
+                x = rows[i].getElementsByTagName("TD")[n];
+                y = rows[i + 1].getElementsByTagName("TD")[n];
+
+                let xVal, yVal;
+                if (n === 3) { // Cột Ngày
+                    xVal = Number(x.getAttribute('data-date')); yVal = Number(y.getAttribute('data-date'));
+                } else {
+                    xVal = x.innerText.toLowerCase(); yVal = y.innerText.toLowerCase();
+                }
+
+                if (dir == "asc") { if (xVal > yVal) { shouldSwitch = true; break; } }
+                else if (dir == "desc") { if (xVal < yVal) { shouldSwitch = true; break; } }
+            }
+            if (shouldSwitch) {
+                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                switching = true;
+                switchcount++;
+            } else {
+                if (switchcount == 0 && dir == "asc") { dir = "desc"; switching = true; }
+            }
+        }
+        if (dir === "asc") { currentIcon.className = "fa-solid fa-sort-up float-end text-primary mt-2"; }
+        else { currentIcon.className = "fa-solid fa-sort-down float-end text-primary mb-1"; }
+    }
 </script>

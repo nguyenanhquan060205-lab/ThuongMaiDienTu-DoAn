@@ -3,6 +3,10 @@ GO
 USE TMDT
 GO
 
+---------------------------------------------------
+-- 1. TẠO CÁC BẢNG (ĐÃ GOM GỌN)
+---------------------------------------------------
+
 -- Bảng USER (KHÁCHHÀNG + ADMIN)
 CREATE TABLE NGUOIDUNG
 (
@@ -26,20 +30,23 @@ CREATE TABLE LOAISANPHAM (
     TenLoai NVARCHAR(100) NOT NULL
 );
 
--- Bảng SẢN PHẨM
+-- Bảng SẢN PHẨM (Đã thêm DanhGiaTB và TongDanhGia)
 CREATE TABLE SANPHAM (
     MaSP INT PRIMARY KEY IDENTITY(1,1),
-    MaKH INT FOREIGN KEY REFERENCES NGUOIDUNG(MaKH),       
+    MaKH INT FOREIGN KEY REFERENCES NGUOIDUNG(MaKH),        
     MaLoai INT FOREIGN KEY REFERENCES LoaiSanPham(MaLoai),
     TenSP NVARCHAR(200) NOT NULL,
     MoTa NVARCHAR(MAX),
-    Gia DECIMAL(18,2) CHECK (Gia >= 0),   
+    Gia DECIMAL(18,2) CHECK (Gia >= 0),    
     SoLuong INT CHECK (SoLuong >= 0),
-    TrangThai NVARCHAR(20) DEFAULT N'Chờ duyệt' 
-        CHECK (TrangThai IN (N'Chờ duyệt', N'Đã duyệt', N'Đã bán', N'Ẩn')),
+    DanhGiaTB FLOAT DEFAULT 0, -- Đã gom vào đây
+    TongDanhGia INT DEFAULT 0, -- Đã gom vào đây
+    TrangThai NVARCHAR(20) DEFAULT N'Đã duyệt' 
+        CHECK (TrangThai IN (N'Đã duyệt', N'Đã bán', N'Ẩn')),
     NgayTao DATETIME DEFAULT GETDATE()
 );
 
+-- Bảng HÌNH ẢNH SP
 CREATE TABLE HINHANHSP (
     MaHA INT PRIMARY KEY IDENTITY,
     Masp INT FOREIGN KEY REFERENCES SanPham(MaSP) ON DELETE CASCADE,
@@ -47,12 +54,12 @@ CREATE TABLE HINHANHSP (
     AnhBia BIT DEFAULT 0  
 );
 
-
--- Bảng GIỎ HÀNG
+-- Bảng GIỎ HÀNG (Đã thêm TongSoLuong và ràng buộc UNIQUE MaKH)
 CREATE TABLE GIOHANG (
     MaGH INT PRIMARY KEY IDENTITY(1,1),
-    MaKH INT FOREIGN KEY REFERENCES NGUOIDUNG(MaKH)
-
+    MaKH INT FOREIGN KEY REFERENCES NGUOIDUNG(MaKH),
+    TongSoLuong INT DEFAULT 0, -- Đã gom vào đây
+    CONSTRAINT UQ_GioHang_MaKH UNIQUE (MaKH) -- Mỗi người chỉ 1 giỏ hàng
 );
 
 -- Bảng CHI TIẾT GIỎ HÀNG
@@ -64,16 +71,17 @@ CREATE TABLE CT_GIOHANG (
     PRIMARY KEY (MaGH, MaSP)
 );
 
--- Bảng HÓA ĐƠN
+-- Bảng HÓA ĐƠN (Đã thêm DiaChiGiaoHang)
 CREATE TABLE HOADON (
     MaHD INT PRIMARY KEY IDENTITY(1,1),
     MaKH INT FOREIGN KEY REFERENCES NGUOIDUNG(MaKH),
     TongTien DECIMAL(18,2) CHECK (TongTien >= 0),
     PhuongThucTT NVARCHAR(50),
+    DiaChiGiaoHang NVARCHAR(200), -- Đã gom vào đây
     NgayTT DATETIME,
     NgayDat DATETIME DEFAULT GETDATE(),
-	TrangThai NVARCHAR(20) DEFAULT N'Đang chờ xử lý'
-        CHECK (TrangThai IN (N'Đang chờ xử lý', N'Đã thanh toán', N'Đang vận chuyển', N'Đã giải quyết', N'Đã Huỷ'))				
+    TrangThai NVARCHAR(20) DEFAULT N'Đang chờ xử lý'
+        CHECK (TrangThai IN (N'Đang chờ xử lý', N'Đã thanh toán', N'Đang vận chuyển', N'Đã Huỷ'))                
 );
 
 -- Bảng CHI TIẾT HÓA ĐƠN
@@ -95,20 +103,17 @@ CREATE TABLE DANHGIA (
     NgayDG DATETIME DEFAULT GETDATE()
 );
 
--- Bảng KHIẾU NẠI
+-- Bảng KHIẾU NẠI (Đã gom NgayGui, PhanHoi và fix TrangThai chỉ có 2 loại)
 CREATE TABLE KHIEUNAI (
     MaKN INT PRIMARY KEY IDENTITY(1,1),
     MaKH INT FOREIGN KEY REFERENCES NGUOIDUNG(MaKH),
     MaSP INT FOREIGN KEY REFERENCES SanPham(MaSP) ON DELETE CASCADE,
     MoTa NVARCHAR(MAX),
-	TrangThai NVARCHAR(20) DEFAULT N'Chưa xử lý'
-    CHECK (TrangThai IN (N'Chưa xử lý', N'Đang xử lý', N'Đã giải quyết'))
-
+    PhanHoi NVARCHAR(MAX) NULL, -- Đã gom vào đây
+    NgayGui DATETIME DEFAULT GETDATE(), -- Đã gom vào đây
+    TrangThai NVARCHAR(20) DEFAULT N'Chưa xử lý'
+    CHECK (TrangThai IN (N'Chưa xử lý', N'Đã giải quyết')) -- Chuẩn chỉ 2 trạng thái
 );
-ALTER TABLE KHIEUNAI
-ADD NgayGui DATETIME DEFAULT GETDATE(),
-    PhanHoi NVARCHAR(MAX) NULL;  -- phản hồi của admin
-
 
 -- Bảng TIN NHẮN
 CREATE TABLE TINNHAN (
@@ -120,23 +125,13 @@ CREATE TABLE TINNHAN (
     MaSP INT NULL FOREIGN KEY REFERENCES SanPham(MaSP) ON DELETE SET NULL,
     DaDoc BIT DEFAULT 0
 );
----
-ALTER TABLE HOADON
-ADD DiaChiGiaoHang NVARCHAR(200)
-
-ALTER TABLE GIOHANG
-ADD TongSoLuong INT DEFAULT 0;
-
-ALTER TABLE SANPHAM
-ADD DanhGiaTB FLOAT DEFAULT 0,
-    TongDanhGia INT DEFAULT 0;
-
-ALTER TABLE GioHang
-ADD CONSTRAINT UQ_GioHang_MaKH UNIQUE (MaKH);
 GO
 
----
+---------------------------------------------------
+-- 2. TẠO TRIGGERS
+---------------------------------------------------
 
+-- Trigger cập nhật tổng số lượng giỏ hàng
 CREATE TRIGGER TRG_UPDATETONGSOLUONG
 ON CT_GIOHANG
 AFTER INSERT, UPDATE, DELETE
@@ -145,7 +140,6 @@ BEGIN
     UPDATE GIOHANG
     SET TONGSOLUONG = (
         SELECT ISNULL(SUM(SOLUONG),0)
-
         FROM CT_GIOHANG
         WHERE CT_GIOHANG.MaGH = GIOHANG.MaGH
     )
@@ -153,8 +147,7 @@ BEGIN
 END;
 GO
 
----
-
+-- Trigger cập nhật đánh giá trung bình
 CREATE TRIGGER TRG_UPDATEDANHGIATB
 ON DANHGIA
 AFTER INSERT, UPDATE, DELETE
@@ -173,10 +166,13 @@ BEGIN
     )
     WHERE MaSP IN (SELECT MaSP FROM inserted UNION SELECT MaSP FROM deleted);
 END;
+GO
 
+---------------------------------------------------
+-- 3. INSERT DỮ LIỆU MẪU
+---------------------------------------------------
 
-
--- 1️⃣ Bảng NGUOIDUNG (Admin + User)
+-- 1️⃣ Bảng NGUOIDUNG
 INSERT INTO NGUOIDUNG (HoTen, GioiTinh, NgaySinh, VaiTro, MatKhau, TaiKhoan, Email, SDT, DiaChi, AnhDaiDien)
 VALUES
 (N'Nguyễn Văn Admin', N'Nam', '1990-01-10', 'Admin', '123', 'admin', 'admin@gmail.com', '0901000001', N'Quận 1, TP.HCM', 'admin.jpg'),
@@ -185,18 +181,12 @@ VALUES
 (N'Trần Quốc Bảo', N'Nam', '2001-09-14', 'User', '123', 'quocbao', 'quocbao@gmail.com', '0904000004', N'Quận 10, TP.HCM', 'default.jpg');
 GO
 
-
 -- 2️⃣ Bảng LOAISANPHAM
 INSERT INTO LOAISANPHAM (TenLoai)
 VALUES
-(N'Điện thoại'),
-(N'Máy tính & Laptop'),
-(N'Thời trang'),
-(N'Đồ gia dụng'),
-(N'Phụ kiện công nghệ'),
-(N'Khác');
+(N'Điện thoại'), (N'Máy tính & Laptop'), (N'Thời trang'),
+(N'Đồ gia dụng'), (N'Phụ kiện công nghệ'), (N'Khác');
 GO
-
 
 -- 3️⃣ Bảng SANPHAM
 INSERT INTO SANPHAM (MaKH, MaLoai, TenSP, MoTa, Gia, SoLuong, TrangThai)
@@ -209,18 +199,12 @@ VALUES
 (4, 5, N'Tai nghe Bluetooth Sony WF-1000XM4', N'Hàng chính hãng, chống ồn chủ động', 4800000, 1, N'Đã duyệt');
 GO
 
-
 -- 4️⃣ Bảng HINHANHSP
 INSERT INTO HINHANHSP (MaSP, URLAnh, AnhBia)
 VALUES
-(1, N'iphone13.jpg', 1),
-(2, N's21fe.jpg', 1),
-(3, N'xps13.jpg', 1),
-(4, N'hoodie.jpg', 1),
-(5, N'philips_blender.jpg', 1),
-(6, N'sony_xm4.jpg', 1);
+(1, N'iphone13.jpg', 1), (2, N's21fe.jpg', 1), (3, N'xps13.jpg', 1),
+(4, N'hoodie.jpg', 1), (5, N'philips_blender.jpg', 1), (6, N'sony_xm4.jpg', 1);
 GO
-SELECT MaSP, TenSP FROM SANPHAM;
 
 
 USE TMDT;
@@ -261,7 +245,3 @@ SELECT * FROM HOADON
 SELECT * FROM CT_HOADON
 SELECT * FROM LOAISANPHAM
 SELECT * FROM DANHGIA
-
-UPDATE SANPHAM
-SET TrangThai = N'Đã duyệt'
-WHERE MaSP = 3

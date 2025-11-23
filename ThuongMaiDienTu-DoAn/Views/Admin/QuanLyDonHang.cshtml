@@ -1,81 +1,250 @@
-﻿
+﻿@using ThuongMaiDienTu_DoAn.Models
+@model IEnumerable<DonHangC2CViewModel>
+
 @{
-    ViewBag.Title = "Dashboard quản trị";
+    ViewBag.Title = "Quản lý đơn hàng";
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
 }
 
+<style>
+    /* CSS ĐỒNG BỘ */
+    .nav-tabs .nav-link {
+        color: #6c757d;
+        font-weight: 600;
+        border: none;
+        padding: 12px 20px;
+        transition: 0.2s;
+    }
 
+        .nav-tabs .nav-link.active {
+            color: #0d6efd;
+            border-bottom: 3px solid #0d6efd;
+            background: transparent;
+        }
 
-@model IEnumerable<ThuongMaiDienTu_DoAn.Models.DonHangC2CViewModel>
+        .nav-tabs .nav-link:hover {
+            color: #0a58ca;
+        }
 
-<div class="container-fluid px-4 mt-4">
+    .table th {
+        background-color: #f8f9fa;
+        color: #495057;
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 0.5px;
+        cursor: pointer;
+        user-select: none;
+        vertical-align: middle;
+    }
 
-    <h2 class="fw-bold text-primary mb-3">
-        <i class="bi bi-receipt-cutoff"></i> Quản lý đơn hàng
-    </h2>
+        .table th:hover {
+            background-color: #e9ecef;
+            color: #0d6efd;
+        }
 
-    <div class="card shadow-sm border-0">
-        <div class="card-body">
+    .table td {
+        vertical-align: middle;
+        font-size: 0.95rem;
+        color: #333;
+    }
 
-            <h5 class="fw-bold text-dark mb-3">Danh sách đơn hàng</h5>
+    .search-box .input-group-text {
+        background-color: #fff;
+        border-right: none;
+        color: #aaa;
+    }
 
-            <table class="table table-bordered text-center align-middle">
-                <thead class="table-info">
-                    <tr>
-                        <th>Mã HD</th>
-                        <th>Người mua</th>
-                        <th>Người bán</th>
-                        <th>Ngày đặt</th>
-                        <th>Tổng tiền</th>
-                        <th>Trạng thái</th>
-                    </tr>
-                </thead>
+    .search-box .form-control {
+        border-left: none;
+        box-shadow: none;
+    }
 
-                <tbody>
-                    @if (Model != null && Model.Any())
-                    {
-                        foreach (var item in Model)
-                        {
-                            string badgeClass =
-                                item.TrangThai == "Đang vận chuyển" ? "bg-info text-white" :
-                                item.TrangThai == "Đã thanh toán" ? "bg-success text-white" :
-                                item.TrangThai == "Đã Huỷ" ? "bg-danger text-white" :
-                                "bg-warning text-dark"; // Đang chờ / mặc định
+        .search-box .form-control:focus {
+            border-color: #ced4da;
+        }
+</style>
 
-                            <tr>
-                                <td>@item.MaHD</td>
-                                <td>@item.NguoiMua</td>
-                                <td>@item.NguoiBan</td>
+<div class="container-fluid px-4 mt-4 pb-5">
 
-                                <td>
-                                    @(item.NgayDat.HasValue
-                                        ? item.NgayDat.Value.ToString("dd/MM/yyyy")
-                                        : "")
-                                </td>
+    <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
+        <ul class="nav nav-tabs border-0 m-0" id="myTab" role="tablist">
+            <li class="nav-item">
+                <button class="nav-link active" id="order-tab" data-bs-toggle="tab" data-bs-target="#order-pane" type="button">
+                    <i class="fa-solid fa-file-invoice me-2"></i> Quản lý đơn hàng
+                </button>
+            </li>
+        </ul>
 
-                                <td class="text-danger fw-bold">
-                                    @String.Format("{0:N0} ₫", item.TongTien)
-                                </td>
+        <div class="input-group search-box" style="max-width: 300px;">
+            <span class="input-group-text"><i class="fa-solid fa-search"></i></span>
+            <input type="text" id="searchInput" class="form-control" placeholder="Tìm đơn hàng...">
+        </div>
+    </div>
 
-                                <td>
-                                    <span class="badge @badgeClass px-3 py-2 fs-6">
-                                        @item.TrangThai
-                                    </span>
-                                </td>
-                            </tr>
-                        }
-                    }
-                    else
-                    {
-                        <tr>
-                            <td colspan="6" class="text-muted py-4">
-                                Không có đơn hàng nào.
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+    <div class="tab-content" id="myTabContent">
+        <div class="tab-pane fade show active" id="order-pane" role="tabpanel">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0" id="orderTable">
+                            <thead>
+                                <tr class="text-center">
+                                    <th style="width: 20%; text-align: left; padding-left: 20px;" onclick="sortTable(0, this)">
+                                        Người mua <i class="fa-solid fa-sort float-end text-muted mt-1"></i>
+                                    </th>
+                                    <th style="width: 20%;" onclick="sortTable(1, this)">
+                                        Người bán <i class="fa-solid fa-sort float-end text-muted mt-1"></i>
+                                    </th>
+                                    <th style="width: 15%;" onclick="sortTable(2, this)">
+                                        Ngày đặt <i class="fa-solid fa-sort float-end text-muted mt-1"></i>
+                                    </th>
+                                    <th style="width: 15%;" onclick="sortTable(3, this)">
+                                        Tổng tiền <i class="fa-solid fa-sort float-end text-muted mt-1"></i>
+                                    </th>
+                                    <th style="width: 20%;" class="text-center">
+                                        <div class="dropdown d-inline-block">
+                                            <span class="dropdown-toggle fw-bold" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer;">
+                                                Trạng thái
+                                            </span>
+                                            <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                                                <li><a class="dropdown-item" href="#" onclick="filterStatus('all')">Tất cả</a></li>
+                                                <li><hr class="dropdown-divider"></li>
+                                                <li><a class="dropdown-item text-warning" href="#" onclick="filterStatus('Đang chờ xử lý')">Đang chờ xử lý</a></li>
+                                                <li><a class="dropdown-item text-info" href="#" onclick="filterStatus('Đang vận chuyển')">Đang vận chuyển</a></li>
+                                                <li><a class="dropdown-item text-success" href="#" onclick="filterStatus('Đã thanh toán')">Đã thanh toán</a></li>
+                                                <li><a class="dropdown-item text-danger" href="#" onclick="filterStatus('Đã Huỷ')">Đã Huỷ</a></li>
+                                            </ul>
+                                        </div>
+                                    </th>
+                                    <th style="width: 10%;">Chi tiết</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableBody">
+                                @if (Model != null && Model.Any())
+                                {
+                                    foreach (var item in Model)
+                                    {
+                                        string badgeClass = "bg-secondary";
+                                        if (item.TrangThai == "Đang chờ xử lý") { badgeClass = "bg-warning text-dark"; }
+                                        else if (item.TrangThai == "Đang vận chuyển") { badgeClass = "bg-info text-white"; }
+                                        else if (item.TrangThai == "Đã thanh toán") { badgeClass = "bg-success"; }
+                                        else if (item.TrangThai == "Đã Huỷ") { badgeClass = "bg-danger"; }
 
+                                        <tr class="status-row text-center" data-status="@item.TrangThai">
+                                            <td class="text-start fw-bold text-dark" style="padding-left: 20px;">
+                                                <i class="fa-solid fa-user-tag text-muted me-2"></i> @item.NguoiMua
+                                            </td>
+
+                                            <td class="text-muted">
+                                                <i class="fa-solid fa-shop me-1"></i> @item.NguoiBan
+                                            </td>
+
+                                            <td data-date="@(item.NgayDat.HasValue ? item.NgayDat.Value.ToString("yyyyMMddHHmmss") : "0")">
+                                                @(item.NgayDat.HasValue ? item.NgayDat.Value.ToString("dd/MM/yyyy") : "")
+                                            </td>
+
+                                            <td class="text-danger fw-bold" data-money="@item.TongTien">
+                                                @String.Format("{0:N0} ₫", item.TongTien)
+                                            </td>
+
+                                            <td>
+                                                <span class="badge @badgeClass rounded-pill fw-bold py-2 px-3" style="min-width: 110px;">
+                                                    @item.TrangThai
+                                                </span>
+                                            </td>
+
+                                            <td>
+                                                <a href="@Url.Action("CT_LichSu", "TaiKhoan", new { id = item.MaHD })"
+                                                   class="btn btn-sm btn-outline-primary shadow-sm"
+                                                   title="Xem chi tiết đơn hàng">
+                                                    <i class="fa-solid fa-eye"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="6" class="text-center text-muted py-5">
+                                            <i class="fa-solid fa-box-open fs-1 mb-3 d-block text-secondary opacity-50"></i>
+                                            Chưa có đơn hàng nào.
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
+<script>
+    document.getElementById('searchInput').addEventListener('keyup', function () {
+        let filter = this.value.toLowerCase();
+        let rows = document.querySelectorAll('#tableBody tr.status-row');
+        rows.forEach(row => {
+            let textMua = row.cells[0].textContent.toLowerCase();
+            let textBan = row.cells[1].textContent.toLowerCase();
+            if ((textMua.includes(filter) || textBan.includes(filter))) {
+                if (row.getAttribute('data-filtered') !== 'hidden') row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+
+    function filterStatus(status) {
+        let rows = document.querySelectorAll('.status-row');
+        rows.forEach(row => {
+            let rowStatus = row.getAttribute('data-status');
+            if (status === 'all' || rowStatus === status) {
+                row.setAttribute('data-filtered', 'visible');
+                row.style.display = '';
+            } else {
+                row.setAttribute('data-filtered', 'hidden');
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    function sortTable(n, thElement) {
+        var table = document.getElementById("orderTable");
+        var rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+        switching = true;
+        dir = "asc";
+        var allIcons = table.querySelectorAll('th i');
+        allIcons.forEach(icon => icon.className = "fa-solid fa-sort float-end text-muted mt-1");
+        var currentIcon = thElement.querySelector('i');
+
+        while (switching) {
+            switching = false;
+            rows = table.rows;
+            for (i = 1; i < (rows.length - 1); i++) {
+                shouldSwitch = false;
+                x = rows[i].getElementsByTagName("TD")[n];
+                y = rows[i + 1].getElementsByTagName("TD")[n];
+
+                let xVal, yVal;
+                if (n === 2) { xVal = Number(x.getAttribute('data-date')); yVal = Number(y.getAttribute('data-date')); }
+                else if (n === 3) { xVal = Number(x.getAttribute('data-money')); yVal = Number(y.getAttribute('data-money')); }
+                else { xVal = x.innerText.toLowerCase(); yVal = y.innerText.toLowerCase(); }
+
+                if (dir == "asc") { if (xVal > yVal) { shouldSwitch = true; break; } }
+                else if (dir == "desc") { if (xVal < yVal) { shouldSwitch = true; break; } }
+            }
+            if (shouldSwitch) {
+                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                switching = true;
+                switchcount++;
+            } else {
+                if (switchcount == 0 && dir == "asc") { dir = "desc"; switching = true; }
+            }
+        }
+        if (dir === "asc") { currentIcon.className = "fa-solid fa-sort-up float-end text-primary mt-2"; }
+        else { currentIcon.className = "fa-solid fa-sort-down float-end text-primary mb-1"; }
+    }
+</script>

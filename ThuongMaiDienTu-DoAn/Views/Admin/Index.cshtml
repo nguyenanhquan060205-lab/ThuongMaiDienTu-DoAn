@@ -3,58 +3,195 @@
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
 }
 
-<div class="container mt-4">
-    <h2 class="fw-bold text-primary mb-4">
-        <i class="bi bi-bar-chart-fill"></i> Tổng quan hệ thống
+<style>
+    /* Hiệu ứng hover cho card */
+    .card-hover {
+        transition: all 0.3s ease;
+        border: 1px solid #e0e0e0;
+    }
+
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            cursor: pointer;
+            border-color: #00d9ff; /* Viền sáng lên khi hover */
+        }
+
+    /* Style cho tiêu đề từng mục */
+    .section-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1e1e3b; /* Màu tối giống sidebar */
+        border-bottom: 2px solid #f0f0f0;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+        margin-top: 30px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+        .section-title i {
+            color: #00d9ff; /* Icon màu xanh chủ đạo */
+        }
+</style>
+
+<div class="container-fluid px-4 pb-5">
+
+    <h2 class="fw-bold text-primary mt-4 mb-2">
+        Tổng quan hệ thống
     </h2>
+    <p class="text-muted">Chào mừng quay trở lại, đây là bảng điều khiển trung tâm.</p>
 
-    <div class="row text-center">
-
-        <div class="col-md-3 mb-4">
-            <div class="card shadow-sm border-0 py-3">
-                <div class="card-body">
-                    <i class="bi bi-hourglass-split text-warning fs-1"></i>
-                    <h4 class="fw-bold mt-2">@ViewBag.TinChoDuyet</h4>
-                    <p class="text-muted">Tin chờ duyệt</p>
+    <div class="section-title">
+        <i class="fa-solid fa-box"></i> Quản lý sản phẩm
+    </div>
+    <div class="row g-3">
+        <div class="col-md-4 col-xl-3">
+            <a href="@Url.Action("QuanLySanPham", "Admin")" class="text-decoration-none text-reset">
+                <div class="card card-hover h-100 border-0 shadow-sm">
+                    <div class="card-body d-flex align-items-center">
+                        <div class="rounded-circle bg-warning bg-opacity-10 p-3 me-3">
+                            <i class="fa-solid fa-hourglass-half text-warning fs-3"></i>
+                        </div>
+                        <div>
+                            <h3 class="fw-bold mb-0">@ViewBag.TinChoDuyet</h3>
+                            <span class="text-muted small">Tin chờ duyệt</span>
+                        </div>
+                    </div>
                 </div>
-            </div>
+            </a>
         </div>
 
-        <div class="col-md-3 mb-4">
-            <div class="card shadow-sm border-0 py-3">
-                <div class="card-body">
-                    <i class="bi bi-check-circle-fill text-success fs-1"></i>
-                    <h4 class="fw-bold mt-2">@ViewBag.TinDaDuyet</h4>
-                    <p class="text-muted">Tin đã duyệt</p>
+        <div class="col-md-4 col-xl-3">
+            <a href="@Url.Action("QuanLySanPham", "Admin")" class="text-decoration-none text-reset">
+                <div class="card card-hover h-100 border-0 shadow-sm">
+                    <div class="card-body d-flex align-items-center">
+                        <div class="rounded-circle bg-success bg-opacity-10 p-3 me-3">
+                            <i class="fa-solid fa-check-circle text-success fs-3"></i>
+                        </div>
+                        <div>
+                            <h3 class="fw-bold mb-0">@ViewBag.TinDaDuyet</h3>
+                            <span class="text-muted small">Tin đang hiển thị</span>
+                        </div>
+                    </div>
                 </div>
-            </div>
+            </a>
         </div>
 
-        <div class="col-md-3 mb-4">
-            <div class="card shadow-sm border-0 py-3">
-                <div class="card-body">
-                    <i class="bi bi-person-badge text-info fs-1"></i>
-                    <h4 class="fw-bold mt-2">@ViewBag.TongNguoiDung</h4>
-                    <p class="text-muted">Người dùng</p>
+        <div class="col-md-4 col-xl-3">
+            <a href="@Url.Action("QuanLySanPham", "Admin")" class="text-decoration-none text-reset">
+                <div class="card card-hover h-100 border-0 shadow-sm">
+                    <div class="card-body d-flex align-items-center">
+                        <div class="rounded-circle bg-primary bg-opacity-10 p-3 me-3">
+                            <i class="fa-solid fa-boxes-stacked text-primary fs-3"></i>
+                        </div>
+                        <div>
+                            <h3 class="fw-bold mb-0">@ViewBag.TongSanPham</h3>
+                            <span class="text-muted small">Tổng sản phẩm</span>
+                        </div>
+                    </div>
                 </div>
-            </div>
+            </a>
         </div>
 
-        <div class="col-md-3 mb-4">
-            <div class="card shadow-sm border-0 py-3">
-                <div class="card-body">
-                    <i class="bi bi-box-seam text-primary fs-1"></i>
-                    <h4 class="fw-bold mt-2">@ViewBag.TongSanPham</h4>
-                    <p class="text-muted">Tổng sản phẩm</p>
+        <div class="col-md-4 col-xl-3">
+            <a href="@Url.Action("QuanLyLoaiSP", "Admin")" class="text-decoration-none text-reset">
+                <div class="card card-hover h-100 border-0 shadow-sm">
+                    <div class="card-body d-flex align-items-center">
+                        <div class="rounded-circle bg-info bg-opacity-10 p-3 me-3">
+                            <i class="fa-solid fa-layer-group text-info fs-3"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold mb-0">Danh mục</h5>
+                            <span class="text-muted small">Quản lý loại SP</span>
+                        </div>
+                    </div>
                 </div>
-            </div>
+            </a>
         </div>
-
     </div>
 
-    <div class="text-center mt-4">
-        <a href="@Url.Action("DuyetTin", "Admin")" class="btn btn-outline-primary px-4">
-            <i class="bi bi-check2-square"></i> Duyệt tin đăng
-        </a>
+    <div class="section-title">
+        <i class="fa-solid fa-file-invoice"></i> Quản lý đơn hàng
     </div>
+    <div class="row g-3">
+        <div class="col-md-6 col-xl-4">
+            <a href="@Url.Action("QuanLyDonHang", "Admin")" class="text-decoration-none text-reset">
+                <div class="card card-hover h-100 border-0 shadow-sm">
+                    <div class="card-body d-flex align-items-center">
+                        <div class="rounded-circle bg-danger bg-opacity-10 p-3 me-3">
+                            <i class="fa-solid fa-clipboard-list text-danger fs-3"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold mb-0">Đơn hàng</h5>
+                            <span class="text-muted small">Xem và xử lý đơn hàng</span>
+                        </div>
+                        <div class="ms-auto text-end">
+                            <i class="fa-solid fa-arrow-right text-muted"></i>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <div class="section-title">
+        <i class="fa-solid fa-users"></i> Quản lý người dùng
+    </div>
+    <div class="row g-3">
+        <div class="col-md-4 col-xl-3">
+            <a href="@Url.Action("QuanLyNguoiDung", "Admin")" class="text-decoration-none text-reset">
+                <div class="card card-hover h-100 border-0 shadow-sm">
+                    <div class="card-body d-flex align-items-center">
+                        <div class="rounded-circle bg-info bg-opacity-10 p-3 me-3">
+                            <i class="fa-solid fa-user-group text-info fs-3"></i>
+                        </div>
+                        <div>
+                            <h3 class="fw-bold mb-0">@ViewBag.TongNguoiDung</h3>
+                            <span class="text-muted small">Tài khoản đăng ký</span>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <div class="section-title">
+        <i class="fa-solid fa-headset"></i> Hỗ trợ & Khiếu nại
+    </div>
+    <div class="row g-3">
+        <div class="col-md-6 col-xl-4">
+            <a href="@Url.Action("QuanLyKhieuNai", "Admin")" class="text-decoration-none text-reset">
+                <div class="card card-hover h-100 border-0 shadow-sm">
+                    <div class="card-body d-flex align-items-center">
+                        <div class="rounded-circle bg-secondary bg-opacity-10 p-3 me-3">
+                            <i class="fa-solid fa-triangle-exclamation text-secondary fs-3"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold mb-0">Khiếu nại</h5>
+                            <span class="text-muted small">Giải quyết báo cáo</span>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-6 col-xl-4">
+            <a href="@Url.Action("Chat", "TinNhan")" class="text-decoration-none text-reset">
+                <div class="card card-hover h-100 border-0 shadow-sm">
+                    <div class="card-body d-flex align-items-center">
+                        <div class="rounded-circle bg-primary bg-opacity-10 p-3 me-3">
+                            <i class="fa-solid fa-comments text-primary fs-3"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold mb-0">Tin nhắn</h5>
+                            <span class="text-muted small">Hỗ trợ trực tuyến</span>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
 </div>

@@ -1,14 +1,14 @@
 ﻿@model IEnumerable<ThuongMaiDienTu_DoAn.Models.SANPHAM>
 @{
     ViewBag.Title = "Trang chủ";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Views/Shared/_Layout.cshtml"; // Sử dụng giao diện chung của người dùng
 }
 
-<!-- HERO -->
 <section class="hero text-center text-white py-5" style="background: linear-gradient(120deg, #212529, #3b3b3b);">
     <div class="container">
         <h1 class="display-5 fw-bold mb-3">TechSecond - Chợ Đồ Điện Tử Cũ</h1>
         <p class="lead mb-4">Mua bán đồ cũ nhanh chóng, an toàn và uy tín</p>
+
         <a href="@Url.Action("TaoMoi","SanPham")" class="btn btn-warning btn-lg rounded-pill fw-semibold shadow-sm">
             <i class="fa fa-upload me-2"></i> Đăng tin ngay
         </a>
@@ -23,30 +23,25 @@
                 <p>Người dùng</p>
             </div>
             <div class="col-md-4">
-                <h3 class="text-warning fw-bold">99%</h3>
-                <p>Giao dịch thành công</p>
+                <h3 class="text-warning fw-bold">99%</h3> <p>Giao dịch thành công</p>
             </div>
         </div>
     </div>
 </section>
 
-<!-- DANH MỤC -->
 <section class="container text-center my-5">
     <h2 class="fw-bold mb-4">Danh mục nổi bật</h2>
     <div class="row g-4">
 
-        <!-- Điện thoại -->
         <div class="col-md-3 col-6">
             <a href="@Url.Action("Index", "SanPham", new { maloai = 1 })" class="text-decoration-none text-dark">
                 <div class="category-card">
-                    <div class="fs-1 mb-2">📱</div>
-                    <h5>Điện thoại</h5>
+                    <div class="fs-1 mb-2">📱</div> <h5>Điện thoại</h5>
                     <p class="text-muted small">Smartphone cũ giá rẻ</p>
                 </div>
             </a>
         </div>
 
-        <!-- Laptop -->
         <div class="col-md-3 col-6">
             <a href="@Url.Action("Index", "SanPham", new { maloai = 2 })" class="text-decoration-none text-dark">
                 <div class="category-card">
@@ -57,7 +52,6 @@
             </a>
         </div>
 
-        <!-- Đồ gia dụng -->
         <div class="col-md-3 col-6">
             <a href="@Url.Action("Index", "SanPham", new { maloai = 4 })" class="text-decoration-none text-dark">
                 <div class="category-card">
@@ -68,7 +62,6 @@
             </a>
         </div>
 
-        <!-- Khác -->
         <div class="col-md-3 col-6">
             <a href="@Url.Action("Index", "SanPham", new { maloai = 6 })" class="text-decoration-none text-dark">
                 <div class="category-card">
@@ -83,24 +76,31 @@
 </section>
 
 
-<!-- SẢN PHẨM MỚI -->
 <section class="container my-5">
     <h2 class="fw-bold text-center mb-4">Sản phẩm mới nhất</h2>
     <div class="row g-4 justify-content-center">
+
         @foreach (var item in Model)
         {
+            // Logic lấy ảnh bìa: Nếu có ảnh bìa thì lấy, nếu không có ảnh nào thì dùng ảnh mặc định no-image.jpg
             var anh = item.HINHANHSPs.FirstOrDefault(a => a.AnhBia == true)?.URLAnh ?? "no-image.jpg";
+
             <div class="col-lg-3 col-md-4 col-sm-6">
                 <div class="card border-0 shadow-sm product-card h-100">
+
                     <div class="ratio ratio-1x1 bg-light rounded-top overflow-hidden">
                         <img src="~/Content/Images/@anh" class="card-img-top p-3" style="object-fit: contain;" />
                     </div>
+
                     <div class="card-body text-center d-flex flex-column justify-content-between">
                         <div>
-                            <h6 class="fw-semibold text-truncate">@item.TenSP</h6>
-                            <p class="text-danger fw-bold mb-1">@String.Format("{0:N0} ₫", item.Gia)</p>
-                            <p class="small text-muted">@item.MoTa.Substring(0, Math.Min(45, item.MoTa.Length))</p>
+                            <h6 class="fw-semibold text-truncate">@item.TenSP</h6> <p class="text-danger fw-bold mb-1">@String.Format("{0:N0} ₫", item.Gia)</p>
+
+                            <p class="small text-muted">
+                                @(item.MoTa != null && item.MoTa.Length > 45 ? item.MoTa.Substring(0, 45) + "..." : item.MoTa)
+                            </p>
                         </div>
+
                         <a href="@Url.Action("ChiTiet", "SanPham", new { id = item.MaSP })"
                            class="btn btn-warning btn-sm w-100 rounded-pill fw-semibold shadow-sm">
                             <i class="fa fa-eye me-1"></i> Xem chi tiết
@@ -110,16 +110,22 @@
             </div>
         }
     </div>
+
+    <div class="text-center mt-5">
+        <a href="@Url.Action("Index", "SanPham")" class="btn-see-more">
+            Khám phá thêm <i class="fa-solid fa-arrow-right ms-2"></i>
+        </a>
+    </div>
 </section>
 
-<!-- CSS -->
 <style>
-    /* Hiệu ứng hover chung */
+    /* Hiệu ứng mượt mà khi hover vào các loại card */
     .hover-card, .category-card, .product-card {
         transition: all 0.3s ease;
         border-radius: 12px;
     }
 
+    /* Style cho thẻ danh mục (Category) */
     .category-card {
         background: #fff;
         padding: 25px 10px;
@@ -127,14 +133,35 @@
         box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     }
 
+        /* Hiệu ứng nổi lên khi di chuột vào */
         .category-card:hover,
         .product-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            transform: translateY(-6px); /* Nhấc thẻ lên 6px */
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15); /* Tăng bóng đổ */
         }
 
-    /* Hero section text */
+    /* Hiệu ứng chữ xuất hiện từ trên xuống ở Hero Banner */
     .hero h1, .hero p {
         animation: fadeInDown 1s ease both;
     }
+
+    /* Style cho nút "Khám phá thêm" (trắng viền đen -> hover thành đen chữ vàng) */
+    .btn-see-more {
+        display: inline-block;
+        padding: 10px 30px;
+        border-radius: 50px;
+        background-color: white;
+        color: #333;
+        border: 2px solid #333;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+        .btn-see-more:hover {
+            background-color: #333;
+            color: #ffc107;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
 </style>

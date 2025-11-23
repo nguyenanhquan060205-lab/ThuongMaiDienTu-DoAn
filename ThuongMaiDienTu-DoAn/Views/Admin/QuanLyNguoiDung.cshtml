@@ -1,60 +1,244 @@
-﻿@model IEnumerable<ThuongMaiDienTu_DoAn.Models.NGUOIDUNG>
+﻿@using ThuongMaiDienTu_DoAn.Models
+@model IEnumerable<NGUOIDUNG>
+
 @{
-    ViewBag.Title = "Dashboard quản trị";
+    ViewBag.Title = "Quản lý người dùng";
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
 }
 
-<div class="container-fluid px-4 mt-4">
+<style>
+    /* Tab Styling (Copy y nguyên từ trang SP) */
+    .nav-tabs .nav-link {
+        color: #6c757d;
+        font-weight: 600;
+        border: none;
+        padding: 12px 20px;
+        transition: 0.2s;
+    }
 
-    <h2 class="fw-bold text-primary mb-3">
-        <i class="bi bi-people-fill"></i> Quản lý người dùng
-    </h2>
+        .nav-tabs .nav-link.active {
+            color: #0d6efd;
+            border-bottom: 3px solid #0d6efd;
+            background: transparent;
+        }
 
-    <div class="card shadow-sm border-0">
-        <div class="card-body">
+        .nav-tabs .nav-link:hover {
+            color: #0a58ca;
+        }
 
-            <h5 class="fw-bold text-dark mb-3">Danh sách người dùng</h5>
+    /* Table Styling */
+    .table th {
+        background-color: #f8f9fa;
+        color: #495057;
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 0.5px;
+        cursor: pointer;
+        user-select: none;
+        vertical-align: middle;
+    }
 
-            <table class="table table-bordered text-center align-middle">
-                <thead class="table-info">
-                    <tr>
-                        <th>Mã</th>
-                        <th>Họ tên</th>
-                        <th>Email</th>
-                        <th>Vai trò</th>
-                        <th>Ngày tạo</th>
-                    </tr>
-                </thead>
+        .table th:hover {
+            background-color: #e9ecef;
+            color: #0d6efd;
+        }
 
-                <tbody>
-                    @foreach (var nd in Model)
-                    {
-                        string badgeClass =
-                            nd.VaiTro == "Admin"
-                            ? "bg-danger text-white"
-                            : "bg-secondary text-white";
+    .table td {
+        vertical-align: middle;
+        font-size: 0.95rem;
+        color: #333;
+    }
 
-                        <tr>
-                            <td>@nd.MaKH</td>
-                            <td>@nd.HoTen</td>
-                            <td>@nd.Email</td>
+    /* Search Box */
+    .search-box .input-group-text {
+        background-color: #fff;
+        border-right: none;
+        color: #aaa;
+    }
 
-                            <td>
-                                <span class="badge @badgeClass px-3 py-2 fs-6">
-                                    @nd.VaiTro
-                                </span>
-                            </td>
+    .search-box .form-control {
+        border-left: none;
+        box-shadow: none;
+    }
 
-                            <td>
-                                @(nd.NgayTao.HasValue
-                                    ? nd.NgayTao.Value.ToString("dd/MM/yyyy")
-                                    : "")
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+        .search-box .form-control:focus {
+            border-color: #ced4da;
+        }
+</style>
 
+<div class="container-fluid px-4 mt-4 pb-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
+
+        <ul class="nav nav-tabs border-0 m-0" id="myTab" role="tablist">
+            <li class="nav-item">
+                <button class="nav-link active" id="user-tab" data-bs-toggle="tab" data-bs-target="#user-pane" type="button">
+                    <i class="fa-solid fa-users me-2"></i> Quản lý người dùng
+                </button>
+            </li>
+        </ul>
+
+        <div class="input-group search-box" style="max-width: 300px;">
+            <span class="input-group-text"><i class="fa-solid fa-search"></i></span>
+            <input type="text" id="searchInput" class="form-control" placeholder="Tìm tên, email...">
+        </div>
+    </div>
+
+    <div class="tab-content" id="myTabContent">
+
+        <div class="tab-pane fade show active" id="user-pane" role="tabpanel">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-0">
+
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0" id="userTable">
+                            <thead>
+                                <tr class="text-center">
+                                    <th style="width: 25%; text-align: left; padding-left: 20px;" onclick="sortTable(0, this)">
+                                        Họ và tên <i class="fa-solid fa-sort float-end text-muted mt-1"></i>
+                                    </th>
+
+                                    <th style="width: 30%; text-align: left;" onclick="sortTable(1, this)">
+                                        Email <i class="fa-solid fa-sort float-end text-muted mt-1"></i>
+                                    </th>
+
+                                    <th style="width: 15%;" onclick="sortTable(2, this)">
+                                        Ngày tạo <i class="fa-solid fa-sort float-end text-muted mt-1"></i>
+                                    </th>
+
+                                    <th style="width: 15%;">
+                                        <div class="dropdown d-inline-block">
+                                            <span class="dropdown-toggle fw-bold" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer;">
+                                                Vai trò
+                                            </span>
+                                            <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                                                <li><a class="dropdown-item" href="#" onclick="filterStatus('all')">Tất cả</a></li>
+                                                <li><hr class="dropdown-divider"></li>
+                                                <li><a class="dropdown-item text-danger" href="#" onclick="filterStatus('Admin')">Admin</a></li>
+                                                <li><a class="dropdown-item text-secondary" href="#" onclick="filterStatus('User')">User</a></li>
+                                            </ul>
+                                        </div>
+                                    </th>
+
+                                    <th style="width: 15%;">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableBody">
+                                @foreach (var nd in Model)
+                                {
+                                    string badgeClass = nd.VaiTro == "Admin" ? "bg-danger" : "bg-secondary";
+
+                                    <tr class="status-row text-center" data-status="@nd.VaiTro">
+                                        <td class="text-start" style="padding-left: 20px;">
+                                            <a href="@Url.Action("ThongTinKhachHang", "TaiKhoan", new { id = nd.MaKH })"
+                                               class="fw-bold text-primary text-decoration-none"
+                                               title="Xem chi tiết người dùng này">
+                                                <i class="fa-solid fa-circle-user me-2 text-muted"></i> @nd.HoTen
+                                            </a>
+                                        </td>
+
+                                        <td class="text-start text-dark">
+                                            @nd.Email
+                                        </td>
+
+                                        <td data-date="@(nd.NgayTao.HasValue ? nd.NgayTao.Value.ToString("yyyyMMddHHmmss") : "0")">
+                                            @(nd.NgayTao.HasValue ? nd.NgayTao.Value.ToString("dd/MM/yyyy") : "-")
+                                        </td>
+
+                                        <td>
+                                            <span class="badge @badgeClass rounded-pill fw-bold py-2 px-3" style="min-width: 80px;">
+                                                @nd.VaiTro
+                                            </span>
+                                        </td>
+
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-dark shadow-sm" title="Khóa tài khoản này" onclick="alert('Chức năng đang phát triển!')">
+                                                <i class="fa-solid fa-ban"></i> Khóa
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
+<script>
+    // 1. TÌM KIẾM
+    document.getElementById('searchInput').addEventListener('keyup', function () {
+        let filter = this.value.toLowerCase();
+        let rows = document.querySelectorAll('#tableBody tr.status-row');
+        rows.forEach(row => {
+            let textName = row.cells[0].textContent.toLowerCase();
+            let textEmail = row.cells[1].textContent.toLowerCase();
+            if ((textName.includes(filter) || textEmail.includes(filter))) {
+                if (row.getAttribute('data-filtered') !== 'hidden') {
+                    row.style.display = '';
+                }
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+
+    // 2. LỌC VAI TRÒ
+    function filterStatus(status) {
+        let rows = document.querySelectorAll('.status-row');
+        rows.forEach(row => {
+            let rowStatus = row.getAttribute('data-status');
+            if (status === 'all' || rowStatus === status) {
+                row.setAttribute('data-filtered', 'visible');
+                row.style.display = '';
+            } else {
+                row.setAttribute('data-filtered', 'hidden');
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    // 3. SẮP XẾP
+    function sortTable(n, thElement) {
+        var table = document.getElementById("userTable");
+        var rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+        switching = true;
+        dir = "asc";
+
+        var allIcons = table.querySelectorAll('th i');
+        allIcons.forEach(icon => icon.className = "fa-solid fa-sort float-end text-muted mt-1");
+        var currentIcon = thElement.querySelector('i');
+
+        while (switching) {
+            switching = false;
+            rows = table.rows;
+            for (i = 1; i < (rows.length - 1); i++) {
+                shouldSwitch = false;
+                x = rows[i].getElementsByTagName("TD")[n];
+                y = rows[i + 1].getElementsByTagName("TD")[n];
+
+                let xVal, yVal;
+                if (n === 2) {
+                    xVal = Number(x.getAttribute('data-date')); yVal = Number(y.getAttribute('data-date'));
+                } else {
+                    xVal = x.innerText.toLowerCase(); yVal = y.innerText.toLowerCase();
+                }
+
+                if (dir == "asc") { if (xVal > yVal) { shouldSwitch = true; break; } }
+                else if (dir == "desc") { if (xVal < yVal) { shouldSwitch = true; break; } }
+            }
+            if (shouldSwitch) {
+                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                switching = true;
+                switchcount++;
+            } else {
+                if (switchcount == 0 && dir == "asc") { dir = "desc"; switching = true; }
+            }
+        }
+        if (dir === "asc") { currentIcon.className = "fa-solid fa-sort-up float-end text-primary mt-2"; }
+        else { currentIcon.className = "fa-solid fa-sort-down float-end text-primary mb-1"; }
+    }
+</script>

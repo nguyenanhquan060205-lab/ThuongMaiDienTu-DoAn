@@ -6,13 +6,11 @@
     var loai = ViewBag.LoaiSP as List<ThuongMaiDienTu_DoAn.Models.LOAISANPHAM>;
 }
 
-<div class="container mt-4">
-
+<div class="container mt-4 mb-5">
     <h2 class="fw-bold text-center mb-4 text-dark">
         🛍️ Sản phẩm mới nhất
     </h2>
 
-    <!-- FILTER LOẠI SẢN PHẨM -->
     <div class="d-flex justify-content-center mb-4 flex-wrap gap-2">
         <a class="btn filter-btn @(Request["maloai"] == null ? "active" : "")"
            href="@Url.Action("Index", new { q = Request["q"] })">
@@ -32,7 +30,6 @@
         }
     </div>
 
-    <!-- DANH SÁCH SẢN PHẨM -->
     <div class="row g-4">
         @foreach (var sp in Model)
         {
@@ -45,7 +42,6 @@
             <div class="col-xl-3 col-lg-4 col-md-6">
                 <div class="card card-product h-100 border-0 shadow-sm">
 
-                    <!-- FIX ẢNH KHÔNG BỊ CROP -->
                     <div class="product-img">
                         <img src="~/Content/Images/@anh" alt="@sp.TenSP" />
                     </div>
@@ -73,8 +69,10 @@
 </div>
 
 <style>
+    /* Thêm font-family để tránh lỗi font */
     body {
         background-color: #f7f9fc;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
     /* Nút filter */

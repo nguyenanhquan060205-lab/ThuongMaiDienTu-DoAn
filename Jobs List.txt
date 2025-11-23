@@ -1,16 +1,16 @@
 Tôi nghĩ ra dc chừng này, ông nào cần thêm thì bỏ vô, làm xong rồi thì đánh dấu * trên đầu dòng(đừng xóa những gì làm xong để có thêm ý làm word với pp), nếu thấy ko cần thì bàn bạc xong xóa
 
 đánh giá sản phẩm và người dùng
-tìm kiếm sp, người dùng,.... cho ad
-xóa cái hỗ trợ bên ad đi, giữ lại cái tin nhắn, còn check tính năng dùng User Panel tôi mới tạo cho tiện
+*tìm kiếm sp, người dùng,.... cho ad
+*xóa cái hỗ trợ bên ad đi, giữ lại cái tin nhắn, còn check tính năng dùng User Panel tôi mới tạo cho tiện
 thêm trạng thái cho tin nhắn, ko thì tìm cách hiện thông báo tin nhắn
 tìm cách xác nhận giao hàng, nhận hàng, thanh toán và chỉnh lại lịch sử thành đã thanh toán và tình trạng giao hàng thành đang giao nếu cần
-thêm clickable vào từng card trong dash cho tiện
+*thêm clickable vào từng card trong dash cho tiện
 thêm người dùng và đánh giá vào sql
 lịch sử đánh giá của người dùng, có thể xóa sửa nếu cần, cũng có thể tích hợp vào lịch sử mua hàng
 chức năng ban/xóa người dùng cho ad 
-thêm cột loại sp vào bảng duyệt tin
-tái sử dụng mã sp cũ vì nó ko bị reset sau khi mua hoặc bỏ nó đi, để tên thôi cũng dc
+*thêm cột loại sp vào bảng duyệt tin
+*tái sử dụng mã sp cũ vì nó ko bị reset sau khi mua hoặc bỏ nó đi, để tên thôi cũng dc
 thêm ctsp vào ctdh
 sửa lại cái sửa đơn hàng và thêm ctsp vào đó luôn
 vô hiệu hóa hủy và sửa đơn hàng khi đang giao hoặc đã giao

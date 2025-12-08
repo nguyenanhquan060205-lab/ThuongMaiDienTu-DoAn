@@ -15,3 +15,5 @@ thêm ctsp vào ctdh
 sửa lại cái sửa đơn hàng và thêm ctsp vào đó luôn
 vô hiệu hóa hủy và sửa đơn hàng khi đang giao hoặc đã giao
 chỉ có thể đánh giá và khiếu nại sau khi mua(người bán ko hoàn tiền thì chịu :))) )
+
+Them tinh nang tim kiem shop

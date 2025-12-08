@@ -1,0 +1,104 @@
+﻿@model ThuongMaiDienTu_DoAn.Models.ChiTietShopViewModel
+
+@{
+    // Thay đổi từ @Model. thuộc tính sang @Model.Shop. thuộc tính
+    var shop = Model.Shop;
+    var avatar = string.IsNullOrEmpty(shop.AnhDaiDien) ? "default.jpg" : shop.AnhDaiDien;
+    var vaiTro = shop.VaiTro == "Admin" ? "Quản trị viên" : "Khách hàng/Shop";
+    ViewBag.Title = "Thông tin chi tiết " + shop.HoTen;
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card shadow-lg border-0 rounded-lg mt-5">
+            <div class="card-header bg-primary text-white text-center">
+                <h3 class="fw-light my-4">Chi tiết Shop: @shop.HoTen</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 text-center mb-4">
+                        <img src="~/Content/Avatars/@avatar"
+                             class="rounded-circle img-thumbnail"
+                             style="width: 150px; height: 150px; object-fit: cover; border: 4px solid #f1f1f1;"
+                             alt="Ảnh đại diện" />
+                        <h5 class="mt-3 text-dark">@shop.HoTen</h5>
+                        <span class="badge bg-success">@vaiTro</span>
+                        <p class="text-muted mt-2">Ngày tham gia: @(shop.NgayTao.HasValue ? shop.NgayTao.Value.ToString("dd/MM/yyyy") : "N/A")</p>
+                    </div>
+
+                    <div class="col-md-8">
+                        <h4 class="mb-3 text-primary">Thông tin liên hệ</h4>
+                        <ul class="list-group list-group-flush mb-5">
+                            <li class="list-group-item">
+                                **Email:** @shop.Email
+                            </li>
+                            <li class="list-group-item">
+                                **Số điện thoại:** @(shop.SDT ?? "Chưa cập nhật")
+                            </li>
+                            <li class="list-group-item">
+                                **Địa chỉ:** @(shop.DiaChi ?? "Chưa cập nhật")
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <hr />
+
+                <h4 class="mt-4 mb-4 text-primary">Sản phẩm đang bán (@Model.SanPhams.Count)</h4>
+
+                @if (Model.SanPhams.Count == 0)
+                {
+                    <div class="alert alert-info">Shop hiện chưa có sản phẩm nào được đăng bán.</div>
+                }
+                else
+                {
+                    <div class="row">
+                        @foreach (var sp in Model.SanPhams)
+                        {
+                            <div class="col-md-6 col-lg-4 mb-4">
+                                <div class="card h-100 shadow-sm">
+
+                                    @{
+                                        // 1. Giả định: Tên thuộc tính trong Model SANPHAM là HINHANHSPs (Collection)
+                                        // 2. Giả định: Tên thuộc tính trong Model HINHANHSP là DuongDanAnh
+
+                                        var imageCollection = sp.HINHANHSPs;
+                                        var productImg = "default_product.png"; // Ảnh mặc định
+
+                                        if (imageCollection != null && imageCollection.Any())
+                                        {
+                                            // Lấy đường dẫn của hình ảnh đầu tiên trong Collection
+                                            productImg = imageCollection.First().URLAnh;
+                                        }
+                                    }
+                                    <a href="@Url.Action("ChiTiet", "Sanpham", new { id = sp.MaSP })" class="text-decoration-none">
+                                        <div class="ratio ratio-1x1 bg-light rounded-top overflow-hidden">
+                                            <img src="~/Content/Images/@productImg"
+                                                 class="card-img-top p-3"
+                                                 style="object-fit: contain; width: 100%; height: 100%;"
+                                                 alt="@sp.TenSP" />
+                                        </div>
+                                    </a>
+                                    <div class="card-body d-flex flex-column">
+                                        <h6 class="card-title fw-bold text-truncate">@sp.TenSP</h6>
+                                        <p class="card-text text-danger">Giá: @String.Format("{0:N0}", sp.Gia) VND</p>
+                                        <p class="card-text text-muted mb-auto">Số lượng tồn: @sp.SoLuong</p>
+
+                                        <a href="@Url.Action("ChiTiet", "Sanpham", new { id = sp.MaSP })" class="btn btn-sm btn-outline-info mt-3">
+                                            Xem sản phẩm
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+            <div class="card-footer text-end">
+                <a href="@Url.Action("DanhSachShop", "TaiKhoan")" class="btn btn-outline-secondary">
+                    <i class="fa-solid fa-arrow-left"></i> Quay lại danh sách
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

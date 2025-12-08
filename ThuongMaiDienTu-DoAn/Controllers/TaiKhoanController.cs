@@ -433,5 +433,63 @@ namespace ThuongMaiDienTu_DoAn.Controllers
             return RedirectToAction("LichSu");
         }
 
+        // Trong TaiKhoanController.cs
+
+        public ActionResult DanhSachShop(string searchString)
+        {
+            // Lấy tất cả người dùng có VaiTro là "User" (Giả định là Shop)
+            var danhSachNguoiDung = db.NGUOIDUNGs.Where(s => s.VaiTro == "User").AsQueryable();
+
+            // 1. Xử lý tìm kiếm
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                // Loại bỏ khoảng trắng thừa và chuyển về chữ thường để tìm kiếm không phân biệt hoa thường
+                string keyword = searchString.Trim().ToLower();
+
+                // Lọc theo tên HoTen (có thể thêm TaiKhoan nếu cần)
+                danhSachNguoiDung = danhSachNguoiDung
+                                        .Where(s => s.HoTen.ToLower().Contains(keyword));
+
+                // Lưu từ khóa tìm kiếm để hiển thị lại trong ô input
+                ViewBag.CurrentFilter = searchString;
+            }
+
+            // Sắp xếp theo tên hoặc ngày tạo để danh sách đẹp hơn (Tùy chọn)
+            danhSachNguoiDung = danhSachNguoiDung.OrderBy(s => s.HoTen);
+
+
+            return View(danhSachNguoiDung.ToList());
+        }
+
+
+        public ActionResult ChiTietShop(int id)
+        {
+            // 1. Tìm thông tin Shop (NGUOIDUNG)
+            var shop = db.NGUOIDUNGs.Find(id);
+
+            if (shop == null)
+            {
+                return HttpNotFound();
+            }
+
+            // 2. Lấy danh sách Sản phẩm của Shop đó
+            // Giả định: Model SANPHAM có trường MaKH để liên kết với NGUOIDUNG
+            var danhSachSanPhams = db.SANPHAMs
+                                        .Include(sp => sp.HINHANHSPs)
+                                        .Where(sp => sp.MaKH == id)
+                                        .Where(sp => sp.TrangThai == "Đã duyệt") // Chỉ hiển thị sản phẩm đã được duyệt
+                                        .ToList();
+
+            // 3. Đóng gói dữ liệu vào ViewModel
+            var viewModel = new ChiTietShopViewModel
+            {
+                Shop = shop,
+                SanPhams = danhSachSanPhams
+            };
+
+            // 4. Truyền ViewModel sang View
+            return View(viewModel);
+        }
+
     }
 }

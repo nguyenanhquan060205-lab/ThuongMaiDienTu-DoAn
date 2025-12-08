@@ -92,6 +92,8 @@
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item"><a class="nav-link @(ViewBag.Title=="Trang chủ"?"active":"")" href="@Url.Action("Index","Home")">Trang chủ</a></li>
                     <li class="nav-item"><a class="nav-link" href="@Url.Action("Index","SanPham")">Sản phẩm</a></li>
+                    <li class="nav-item"><a class="nav-link" href="@Url.Action("DanhSachShop","TaiKhoan")">Shop</a></li>
+
                     @if (user != null && user.VaiTro == "Admin")
                     {
                         <li class="nav-item"><a class="nav-link" href="@Url.Action("Index","Admin")">Quản trị</a></li>

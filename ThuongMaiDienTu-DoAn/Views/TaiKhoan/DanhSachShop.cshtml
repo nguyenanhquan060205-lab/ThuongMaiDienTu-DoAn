@@ -1,0 +1,62 @@
+﻿@model IEnumerable<ThuongMaiDienTu_DoAn.Models.NGUOIDUNG>
+
+@{
+    ViewBag.Title = "Danh sách Người dùng/Shop";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Danh sách Người dùng</h2>
+<hr />
+
+@using (Html.BeginForm("DanhSachShop", "TaiKhoan", FormMethod.Get, new { @class = "mb-4" }))
+{
+    <div class="input-group">
+        <input type="text"
+               name="searchString"
+               class="form-control"
+               placeholder="Tìm kiếm Shop theo tên..."
+               value="@ViewBag.CurrentFilter" />
+        <button class="btn btn-primary" type="submit">
+            <i class="fa-solid fa-magnifying-glass"></i> Tìm kiếm
+        </button>
+        @if (!string.IsNullOrEmpty(ViewBag.CurrentFilter))
+        {
+            <a href="@Url.Action("DanhSachShop", "TaiKhoan")" class="btn btn-outline-secondary">
+                Xóa tìm kiếm
+            </a>
+        }
+    </div>
+}
+@if (!Model.Any())
+{
+    <div class="alert alert-warning">
+        Hiện tại không có người dùng nào phù hợp với tìm kiếm.
+    </div>
+}
+else
+{
+    <div class="row">
+        @foreach (var user in Model)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card shadow-sm">
+                    <div class="card-body text-center">
+                        @{
+                            var avatar = string.IsNullOrEmpty(user.AnhDaiDien) ? "default.jpg" : user.AnhDaiDien;
+                        }
+
+                        <img src="~/Content/Avatars/@avatar"
+                             class="rounded-circle img-thumbnail mb-3"
+                             style="width: 100px; height: 100px; object-fit: cover;" />
+
+                        <h5 class="card-title fw-bold">@user.HoTen</h5>
+
+                        <a href="@Url.Action("ChiTietShop", "TaiKhoan", new { id = user.MaKH })" class="btn btn-sm btn-outline-primary mt-2">
+                            Xem chi tiết
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
